@@ -2,35 +2,43 @@
 
 ## Cursor Cloud specific instructions
 
-This repo is a single Vue 2 / Vue CLI 3 (webpack 4) project that builds multiple
-CasparCG HTML graphics templates (`l3d`, `wipe`, `ticker`, `strap`). There is no
-backend, database, or other service — the only thing to run is the Vue dev server.
+This repo builds **CasparCG HTML templates** (Vue 2 / webpack 4) and a **deploy/** tree for
+Caspar `template-path` + `media-path`. No backend or long-running service.
 
-Standard commands live in `package.json` (`yarn serve`, `yarn build`, `yarn lint`)
-and `README.md`. Notes below cover only the non-obvious caveats.
+### Commands
 
-### OpenSSL legacy provider is required for build/serve (not lint)
-The toolchain (webpack 4) is incompatible with the OpenSSL 3 default in modern
-Node. `yarn build` and `yarn serve` fail with `ERR_OSSL_EVP_UNSUPPORTED`
-(`error:0308010C:digital envelope routines::unsupported`) unless you set:
+| Task | Command |
+|------|---------|
+| Dev server | `yarn serve` |
+| Production build | `yarn build` |
+| Lint | `yarn lint` |
 
-```
-NODE_OPTIONS=--openssl-legacy-provider yarn serve
-NODE_OPTIONS=--openssl-legacy-provider yarn build
-```
+`yarn build` = `yarn build:vue` + `node scripts/assemble-caspar.mjs`.
 
-`yarn lint` does NOT need this flag (it does not invoke webpack hashing).
+### OpenSSL legacy provider
 
-### Running / verifying templates
-- Dev server runs at `http://localhost:8080`. There is no root `index.html`
-  (the root path returns 404); each template is its own page, e.g.
-  `http://localhost:8080/l3d.html`, `/wipe.html`, `/ticker.html`, `/strap.html`.
-- When loaded from `localhost:8080`, templates auto-populate sample data and
-  auto-play their intro animation (see each `src/<tpl>/App.vue` `mounted()`).
-  For `l3d` this shows the name "Balte" / title "Developer".
-- Each template exposes the CasparCG control API on `window`: `window.play()`,
-  `window.stop()`, and `window.update({ f0, f1, ... })`. You can call these from
-  the DevTools console to drive/update graphics without a reload, e.g.
-  `window.update({ f0: "Name", f1: "Title" })`.
-- To add a template: create `public/<name>.html`, add `src/<name>/`, and register
-  it in the `pages` object of `vue.config.js`.
+Webpack 4 needs `NODE_OPTIONS=--openssl-legacy-provider` on Node 17+ — already set in
+`package.json` scripts for `serve` and `build`.
+
+### Dev URLs
+
+No root `index.html`. Use `/l3d.html`, `/mod-l3d.html`, `/head-spravy.html`, etc.
+
+### Caspar API
+
+Templates expose `window.play()`, `window.stop()`, `window.update(data)`, `window.preview()`.
+Shared parser: `src/assets/casparBridge.js`.
+
+Sofie field names: see root `README.md` table.
+
+### Output layout
+
+After `yarn build`, copy `deploy/template-path` and `deploy/media-path` to Caspar.
+See `docs/OUTPUT_TOPOLOGY.md` for LED vs PGM (one Caspar, two channels).
+
+### Adding a template
+
+1. `public/<name>.html`
+2. `src/<name>/` (App.vue, main.js, components/)
+3. Register in `vue.config.js` `pages`
+4. Add `<name>` to `scripts/assemble-caspar.mjs` `pages` array

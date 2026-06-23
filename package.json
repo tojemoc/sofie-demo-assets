@@ -1,12 +1,15 @@
 {
-  "name": "casparcg-vue-boilerplate",
-  "version": "0.1.0",
+  "name": "sofie-demo-assets",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Vue/HTML CasparCG templates and media scaffold for Sofie demo / SPRÁVY hypercomposed playout",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
+    "build:vue": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
+    "build": "yarn build:vue && node scripts/assemble-caspar.mjs",
     "lint": "vue-cli-service lint"
   },
-  "author": "Balte de Wit <contact@balte.nl",
+  "author": "tojemoc",
   "license": "MIT",
   "dependencies": {
     "gsap": "^3.6.0",
