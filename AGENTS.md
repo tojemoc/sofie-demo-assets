@@ -22,15 +22,16 @@ NODE_OPTIONS=--openssl-legacy-provider yarn build
 `yarn lint` does NOT need this flag (it does not invoke webpack hashing).
 
 ### Running / verifying templates
-- Dev server runs at `http://localhost:8080`. There is no root `index.html`
-  (the root path returns 404); each template is its own page, e.g.
-  `http://localhost:8080/l3d.html`, `/wipe.html`, `/ticker.html`, `/strap.html`.
+- Dev server runs at `http://localhost:8080`. Each v2 template is its own page, e.g.
+ `http://localhost:8080/headline/index.html`, `/l3d-headline/index.html`,
+ `/l3d-mod/index.html`, `/l3d-tema/index.html`, `/l3d-syn/index.html`,
+ `/l3d-sjv/index.html`, `/l3d-sport/index.html`, `/weather/index.html`,
+ `/outro/index.html`, `/logo-bug/index.html`.
 - When loaded from `localhost:8080`, templates auto-populate sample data and
-  auto-play their intro animation (see each `src/<tpl>/App.vue` `mounted()`).
-  For `l3d` this shows the name "Balte" / title "Developer".
+ auto-play their intro animation (see each `src/<tpl>/App.vue` `mounted()`).
 - Each template exposes the CasparCG control API on `window`: `window.play()`,
-  `window.stop()`, and `window.update({ f0, f1, ... })`. You can call these from
-  the DevTools console to drive/update graphics without a reload, e.g.
-  `window.update({ f0: "Name", f1: "Title" })`.
-- To add a template: create `public/<name>.html`, add `src/<name>/`, and register
-  it in the `pages` object of `vue.config.js`.
+ `window.stop()`, and `window.update({ ... })`. You can call these from
+ the DevTools console to drive/update graphics without a reload, e.g.
+ `window.update({ headline: "R. Fico o M. Ficovi" })`.
+- To add a template: create `src/<name>/`, register it in the `pages` object
+ of `vue.config.js`, and rebuild.
