@@ -76,4 +76,17 @@ on **different channels/consumers**; you do not need two servers.
 
 ## CI/CD
 
-Not wired yet. `.github/workflows/` will be added in a follow-up PR.
+GitHub Actions mirrors [sofie-demo-blueprints](https://github.com/SuperFlyTV/sofie-demo-blueprints):
+
+| Trigger | Job | Output |
+|---------|-----|--------|
+| Pull request / push | `lint`, `build` | Validates `yarn lint` and `yarn build` |
+| Push to `main` or `master` | `prerelease-demo-assets` | GitHub **pre-release** tagged `pre-<commit-sha>` with `sofie-demo-assets-pre-<short-sha>.zip` |
+| Version tag (`v*` or `0.x`) | `release-demo-assets` | GitHub release with `sofie-demo-assets_v<version>.zip` |
+| Push (non-PR) | `build-deploy-image` | Container image on `ghcr.io/<owner>/sofie-demo-assets` |
+
+Each zip contains `sofie-demo-template/` and `sofie-demo-media/` ready for CasparCG
+`<template-path>` and `<media-path>`.
+
+To attach assets to an existing tag manually, run the **Node CI** workflow with
+`workflow_dispatch` and provide the tag name.
