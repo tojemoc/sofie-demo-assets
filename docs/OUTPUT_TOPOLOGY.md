@@ -10,7 +10,7 @@ Use **one CasparCG instance** with **two channels** (or one channel + a non-Casp
 
 ### A) LED = Caspar, PGM = studio camera (no second Caspar)
 
-```
+```text
 Caspar ch1 ──► LED wall     (360_loop + ILU + headlines + MOD gfx)
 Cam 1      ──► PGM / TX     (presenter + LED visible in frame)
 ```
@@ -20,7 +20,7 @@ This is the usual physical setup when the presenter stands in front of the LED.
 
 ### B) LED ≠ PGM, both composed — **one Caspar, two channels**
 
-```
+```text
 Caspar channel 1 ──consumer──► LED SDI/NDI   (full gfx stack, no wide camera)
 Caspar channel 2 ──consumer──► PGM SDI/NDI   (e.g. MOD cam + other layers)
 ```

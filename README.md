@@ -27,7 +27,7 @@ yarn build
 
 Produces:
 
-```
+```text
 deploy/
   template-path/          → CasparCG <template-path>
     gfx/<name>/<name>.html
