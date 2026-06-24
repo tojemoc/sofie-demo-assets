@@ -38,6 +38,9 @@ export default {
         stop () {
             this.timelineOutro.seek(0)
             this.timelineOutro.play()
+        },
+        preview () {
+            this.timelineIntro.progress(1)
         }
     },
     mounted () {
@@ -131,5 +134,3 @@ export default {
     margin-top: 3vw;
 }
 </style>
-
-

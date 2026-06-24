@@ -1,0 +1,23 @@
+:root {
+  /* SPRÁVY palette — tune against GT reference / annotated screenshots */
+  --spravy-bg-navy: #0a1630;
+  --spravy-bar-bg: rgba(12, 22, 48, 0.88);
+  --spravy-bar-highlight: rgba(120, 170, 255, 0.25);
+  --spravy-dot-blue: #2d6cdf;
+  --spravy-text: #ffffff;
+  --spravy-source-bg: rgba(40, 48, 60, 0.85);
+  --spravy-headline-bg: rgba(28, 32, 40, 0.92);
+  --spravy-warning: #e85d5d;
+}
+
+.data-warning {
+  position: fixed;
+  left: 5vw;
+  bottom: 4vh;
+  padding: 0.4em 0.8em;
+  background: var(--spravy-warning);
+  color: #fff;
+  font-size: 1.4vw;
+  border-radius: 0.3em;
+  z-index: 100;
+}
