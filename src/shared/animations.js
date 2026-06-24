@@ -46,9 +46,9 @@ export function slideElementOut (selector, distance, duration = 0.4) {
   })
 }
 
-export function fadeIn (selector, duration = 0.3, delay = 0) {
-  return fromPromise(selector, {
-    opacity: 0,
+export function fadeIn (target, duration = 0.3, delay = 0) {
+  return tweenPromise(target, {
+    opacity: 1,
     duration,
     delay,
     ease: 'power2.out'
@@ -65,4 +65,8 @@ export function fadeOut (selector, duration = 0.3) {
 
 export function killAnimations (selector) {
   gsap.killTweensOf(selector)
+}
+
+export function initBarOffscreen (target) {
+  gsap.set(target, { x: -window.innerWidth })
 }

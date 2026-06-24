@@ -11,7 +11,7 @@
       </div>
       <div id="right-section">
         <div id="logo-zone">
-          <img id="logo-img" ref="logoImg" src="assets/logo-360.svg" alt="" />
+          <img id="logo-img" ref="logoImg" :src="logoSrc" alt="" />
           <div id="counter" ref="counter">{{ counterDisplay }}</div>
         </div>
       </div>
@@ -21,7 +21,7 @@
 
 <script>
 import { gsap } from 'gsap'
-import { slideBarIn, slideBarOut, fadeIn, fadeOut } from '../../shared/animations'
+import { slideBarIn, slideBarOut, fadeIn, fadeOut, initBarOffscreen } from '../../shared/animations'
 
 const COUNTER_TRIGGERS = [100, 200, 300]
 const COUNTER_HOLD_MS = 9000
@@ -34,6 +34,7 @@ export default {
   },
   data () {
     return {
+      logoSrc: require('../../assets/logo-360.svg'),
       elapsedSeconds: 0,
       counterInterval: null,
       counterTimeouts: [],
@@ -51,6 +52,9 @@ export default {
       const secs = this.elapsedSeconds % 60
       return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
     }
+  },
+  mounted () {
+    initBarOffscreen(this.$refs.bar)
   },
   methods: {
     clearTimers () {

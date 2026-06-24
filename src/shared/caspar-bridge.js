@@ -8,7 +8,7 @@ export function parseCasparUpdate (data) {
       ''
     )
     try {
-      data = JSON.parse(decodeURI(data))
+      data = JSON.parse(decodeURIComponent(data))
     } catch (e) {
       try {
         data = JSON.parse(data)

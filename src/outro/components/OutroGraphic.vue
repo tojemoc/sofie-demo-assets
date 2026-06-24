@@ -6,7 +6,7 @@
 
 <script>
 import { gsap } from 'gsap'
-import { slideBarIn, slideBarOut } from '../../shared/animations'
+import { slideBarIn, slideBarOut, initBarOffscreen } from '../../shared/animations'
 
 export default {
   name: 'OutroGraphic',
@@ -14,6 +14,9 @@ export default {
     return {
       callout: 'Sledujte na www.360tka.sk'
     }
+  },
+  mounted () {
+    initBarOffscreen(this.$refs.bar)
   },
   methods: {
     async play () {

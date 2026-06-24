@@ -31,7 +31,7 @@
         :style="cityPosition(city.name)"
       >
         <div class="icon-bg">
-          <img :src="`icons/${city.condition}.svg`" :alt="city.condition" />
+          <img :src="`../../icons/${city.condition}.svg`" :alt="city.condition" />
         </div>
         <div class="city-text">
           <div class="temp">{{ city.temp }}°C</div>
@@ -123,9 +123,9 @@ export default {
       await new Promise(resolve => setTimeout(resolve, 800))
 
       await new Promise(resolve => {
-        gsap.from('.city-group', {
-          scale: 0,
-          opacity: 0,
+        gsap.to('.city-group', {
+          scale: 1,
+          opacity: 1,
           duration: 0.45,
           ease: 'back.out(1.7)',
           stagger: 0.12,

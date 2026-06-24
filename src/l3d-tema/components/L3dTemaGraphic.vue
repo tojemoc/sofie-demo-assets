@@ -6,12 +6,15 @@
 
 <script>
 import { gsap } from 'gsap'
-import { slideBarIn, slideBarOut } from '../../shared/animations'
+import { slideBarIn, slideBarOut, initBarOffscreen } from '../../shared/animations'
 
 export default {
   name: 'L3dTemaGraphic',
   props: {
     headline: { type: String, default: '' }
+  },
+  mounted () {
+    initBarOffscreen(this.$refs.bar)
   },
   methods: {
     async play () {

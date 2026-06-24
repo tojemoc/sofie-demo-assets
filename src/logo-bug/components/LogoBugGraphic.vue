@@ -1,19 +1,22 @@
 <template>
   <div id="logo-bug" ref="logoBug">
-    <img src="assets/logo-360.svg" alt="360° sekúnd" />
+    <img :src="logoSrc" alt="360° sekúnd" />
     <span>sekúnd</span>
   </div>
 </template>
 
 <script>
-import { gsap } from 'gsap'
 import { fadeIn, fadeOut } from '../../shared/animations'
 
 export default {
   name: 'LogoBugGraphic',
+  data () {
+    return {
+      logoSrc: require('../../assets/logo-360.svg')
+    }
+  },
   methods: {
     async play () {
-      gsap.set(this.$refs.logoBug, { opacity: 1 })
       await fadeIn(this.$refs.logoBug, 0.5)
     },
     async stop () {

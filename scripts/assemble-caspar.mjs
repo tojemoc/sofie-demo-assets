@@ -91,7 +91,7 @@ function main () {
   rmrf(deployRoot)
   fs.mkdirSync(templateRoot, { recursive: true })
 
-  for (const dir of ['js', 'css', 'img']) {
+  for (const dir of ['js', 'css', 'img', 'assets', 'icons']) {
     const src = path.join(vueDist, dir)
     if (fs.existsSync(src)) {
       copyDir(src, path.join(templateRoot, dir))
