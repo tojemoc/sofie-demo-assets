@@ -19,7 +19,26 @@ const deployRoot = path.join(root, 'deploy')
 const templateRoot = path.join(deployRoot, 'template-path')
 const mediaRoot = path.join(deployRoot, 'media-path')
 
-const pages = ['l3d', 'head-spravy', 'mod-l3d', 'strap', 'ticker', 'wipe']
+const pages = [
+  'headline',
+  'l3d-headline',
+  'l3d-mod',
+  'l3d-tema',
+  'l3d-syn',
+  'l3d-sjv',
+  'l3d-sport',
+  'weather',
+  'outro',
+  'logo-bug'
+]
+
+function findPageHtml (page) {
+  const nested = path.join(vueDist, page, 'index.html')
+  if (fs.existsSync(nested)) return nested
+  const flat = path.join(vueDist, `${page}.html`)
+  if (fs.existsSync(flat)) return flat
+  return null
+}
 
 function rmrf (dir) {
   if (fs.existsSync(dir)) {
@@ -72,7 +91,7 @@ function main () {
   rmrf(deployRoot)
   fs.mkdirSync(templateRoot, { recursive: true })
 
-  for (const dir of ['js', 'css', 'img']) {
+  for (const dir of ['js', 'css', 'img', 'assets', 'icons']) {
     const src = path.join(vueDist, dir)
     if (fs.existsSync(src)) {
       copyDir(src, path.join(templateRoot, dir))
@@ -85,9 +104,9 @@ function main () {
   }
 
   for (const page of pages) {
-    const srcHtml = path.join(vueDist, `${page}.html`)
-    if (!fs.existsSync(srcHtml)) {
-      console.warn(`skip: ${page}.html not in dist/`)
+    const srcHtml = findPageHtml(page)
+    if (!srcHtml) {
+      console.warn(`skip: ${page} HTML not in dist/`)
       continue
     }
 

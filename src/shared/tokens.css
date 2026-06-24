@@ -1,0 +1,13 @@
+:root {
+  --brand-blue:       #0070FF;
+  --bar-bg:           rgba(8, 16, 40, 0.82);
+  --bar-height:       120px;
+  --bar-height-tall:  160px;
+  --text-primary:     #FFFFFF;
+  --text-secondary:   rgba(255, 255, 255, 0.70);
+  --font-bold:        'InterBold', 'Inter', 'Avenir', Helvetica, Arial, sans-serif;
+  --font-regular:     'Inter', 'Avenir', Helvetica, Arial, sans-serif;
+  --pill-bg:          rgba(30, 30, 30, 0.72);
+  --pill-radius:      20px;
+  --bar-radius:       0px;
+}

@@ -22,12 +22,28 @@ Webpack 4 needs `NODE_OPTIONS=--openssl-legacy-provider` on Node 17+ — already
 
 ### Dev URLs
 
-No root `index.html`. Use `/l3d.html`, `/mod-l3d.html`, `/head-spravy.html`, etc.
+No root `index.html`. Each v2 template is its own page, e.g.
+
+- `http://localhost:8080/headline/index.html`
+- `http://localhost:8080/l3d-headline/index.html`
+- `http://localhost:8080/l3d-mod/index.html`
+- `http://localhost:8080/l3d-tema/index.html`
+- `http://localhost:8080/l3d-syn/index.html`
+- `http://localhost:8080/l3d-sjv/index.html`
+- `http://localhost:8080/l3d-sport/index.html`
+- `http://localhost:8080/weather/index.html`
+- `http://localhost:8080/outro/index.html`
+- `http://localhost:8080/logo-bug/index.html`
+
+When loaded from `localhost:8080`, templates auto-populate sample data and auto-play
+their intro animation (see each `src/<tpl>/App.vue` `mounted()`).
 
 ### Caspar API
 
-Templates expose `window.play()`, `window.stop()`, `window.update(data)`, `window.preview()`.
-Shared parser: `src/assets/casparBridge.js`.
+Templates expose `window.play()`, `window.stop()`, and `window.update(data)`.
+Shared parser: `src/shared/caspar-bridge.js` (v2 templates).
+
+Console example: `window.update({ headline: "R. Fico o M. Ficovi" })`
 
 Sofie field names: see root `README.md` table.
 
@@ -38,7 +54,7 @@ See `docs/OUTPUT_TOPOLOGY.md` for LED vs PGM (one Caspar, two channels).
 
 ### Adding a template
 
-1. `public/<name>.html`
-2. `src/<name>/` (App.vue, main.js, components/)
-3. Register in `vue.config.js` `pages`
-4. Add `<name>` to `scripts/assemble-caspar.mjs` `pages` array
+1. `src/<name>/` (App.vue, main.js, components/)
+2. Register in `vue.config.js` `pages`
+3. Add `<name>` to `scripts/assemble-caspar.mjs` `pages` array
+4. Rebuild
