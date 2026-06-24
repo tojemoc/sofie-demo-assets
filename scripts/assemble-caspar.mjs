@@ -43,7 +43,7 @@ function copyDir (src, dest) {
 function rewriteAssetPaths (html) {
   const prefix = '../../'
   return html.replace(
-    /\b(href|src)=(["']?)((?:\.\.\/)?(?:css|js|img)\/[^"' >]+|favicon\.ico)/gi,
+    /(?<![\w-])(href|src)=(["']?)((?:\.\.\/)?(?:css|js|img)\/[^"' >]+|favicon\.ico)/gi,
     (match, attr, quote, url) => {
       if (url.startsWith('../')) return match
       return `${attr}=${quote}${prefix}${url}`
