@@ -1,38 +1,79 @@
-# CasparCG Vue based HTML graphics boilerplate
+# Sofie demo assets
 
-A boilerplate to develop multiple HTML templates for CasparCG using the Vue framework.
+Vue 2 / webpack CasparCG HTML templates and a **media scaffold** for the Sofie demo /
+SPRÁVY **hypercomposed** playout path.
 
-## Project setup
-```
-git clone https://github.com/baltedewit/casparcg-vue-boilerplate.git
-cd casparcg-vue-boilerplate
-git remote set-url origin https://github.com/USERNAME/REPOSITORY.git
+Forked from [casparcg-vue-boilerplate](https://github.com/mint-dewit/casparcg-vue-boilerplate).
+
+## Templates
+
+| Caspar name | Source | Sofie `update()` fields |
+|-------------|--------|-------------------------|
+| `gfx/l3d` | `src/l3d/` | `name`, `description` (+ legacy `f0`/`f1`) |
+| `gfx/mod-l3d` | `src/mod-l3d/` | `name` |
+| `gfx/head-spravy` | `src/head-spravy/` | `title`, `subtitle`, `source`, `iluFile` |
+| `gfx/strap` | `src/strap/` | (stock demo) |
+| `gfx/ticker` | `src/ticker/` | (stock demo) |
+| `gfx/wipe` | `src/wipe/` | (stock demo HTML wipe) |
+
+`head-spravy` and `mod-l3d` are **layout stubs** — replace with annotated screenshot specs.
+
+## Build & deploy
+
+```bash
 yarn install
+yarn build
 ```
 
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
-Open `http://localhost:8080` in a browser or send `CG 1 ADD http://localhost:8080/index.html 1` to CasparCG.
+Produces:
 
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Lints and fixes files
-```
-yarn run lint
+```text
+deploy/
+  template-path/          → CasparCG <template-path>
+    gfx/<name>/<name>.html
+    js/ css/ img/         (shared hashed bundles)
+  media-path/             → CasparCG <media-path>
+    loops/ clips/ wipes/ assets/
 ```
 
-### Adding a template to the bundle:
- 1. Create a file in the `public` directory called `{{template-name}}.html` similar to the other files
- 2. Copy-paste one of the boilerplate templates in the `src` directory and rename it to `{{template-name}}`
- 3. Edit `vue.config.js` and add your template to the `pages` object.
+Copy onto your playout machine:
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+```text
+deploy/template-path/*  →  C:\path\to\caspar\template\
+deploy/media-path/*     →  C:\path\to\caspar\media\
+```
 
-## Developing for the browser
-Note that your browser and the renderer in CasparCG will be different! Both 2.1.0.NRK and 2.2.0 run on Chromium 63 and they are configured in a different way than your normal browser. (E.g. web security features are disabled, webgl is disabled by default, hardware acceleration is disabled by default) You can attach debugging tools to the renderer in CasparCG, but you will lose the ability to use Vue devtools. Development will most likely be a combination of testing code and logics in Chrome and testing visual output in CasparCG.
+Sofie blueprints reference templates as `gfx/l3d`, `gfx/head-spravy`, etc.
+
+### OpenSSL (Node 17+)
+
+`yarn build` and `yarn serve` set `NODE_OPTIONS=--openssl-legacy-provider` automatically.
+
+## Development
+
+```bash
+yarn serve
+```
+
+Per-template dev URLs (no root index):
+
+- http://localhost:8080/l3d.html
+- http://localhost:8080/mod-l3d.html
+- http://localhost:8080/head-spravy.html
+
+Each auto-plays sample data on `localhost:8080`. Console API:
+
+```js
+window.update({ name: '…', description: '…' })
+window.play()
+window.stop()
+```
+
+## LED vs PGM
+
+See [docs/OUTPUT_TOPOLOGY.md](docs/OUTPUT_TOPOLOGY.md) — **one CasparCG** can feed LED and PGM
+on **different channels/consumers**; you do not need two servers.
+
+## CI/CD
+
+Not wired yet. `.github/workflows/` will be added in a follow-up PR.
