@@ -11,6 +11,11 @@ if [ -n "${TEMPLATE_TARGET}" ] && [ -n "${MEDIA_TARGET}" ]; then
   exit 0
 fi
 
+if [ -n "${TEMPLATE_TARGET}" ] || [ -n "${MEDIA_TARGET}" ]; then
+  echo "Error: both TEMPLATE_TARGET and MEDIA_TARGET must be set together" >&2
+  exit 1
+fi
+
 cat <<'EOF'
 Sofie demo CasparCG assets are available in this image:
 

@@ -81,7 +81,7 @@ GitHub Actions mirrors [sofie-demo-blueprints](https://github.com/SuperFlyTV/sof
 | Trigger | Job | Output |
 |---------|-----|--------|
 | Pull request / push | `lint`, `build` | Validates `yarn lint` and `yarn build` |
-| Push to `main` | `prerelease-demo-assets` | GitHub **pre-release** tagged `pre-<commit-sha>` with `sofie-demo-assets-pre-<short-sha>.zip` |
+| Push to `main` or `master` | `prerelease-demo-assets` | GitHub **pre-release** tagged `pre-<commit-sha>` with `sofie-demo-assets-pre-<short-sha>.zip` |
 | Version tag (`v*` or `0.x`) | `release-demo-assets` | GitHub release with `sofie-demo-assets_v<version>.zip` |
 | Push (non-PR) | `build-deploy-image` | Container image on `ghcr.io/<owner>/sofie-demo-assets` |
 
