@@ -1,0 +1,265 @@
+name: Node CI
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+      - '[0-9]*'
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing git tag to attach release assets to'
+        required: true
+      asset_suffix:
+        description: 'Zip filename suffix (e.g. v0.2.0). Defaults to the tag name without a leading v.'
+        required: false
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+
+      - name: restore node_modules
+        uses: actions/cache@v5
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Prepare Environment
+        run: yarn
+        env:
+          CI: true
+
+      - name: Run linter
+        run: yarn lint
+        env:
+          CI: true
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+
+      - name: restore node_modules
+        uses: actions/cache@v5
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Prepare Environment
+        run: yarn
+        env:
+          CI: true
+
+      - name: Build Caspar deploy tree
+        run: yarn build
+        env:
+          CI: true
+
+  build-deploy-image:
+    name: Build Deploy Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  release-demo-assets:
+    name: Release Demo Assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    needs: [lint, build]
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+
+      - name: restore node_modules
+        uses: actions/cache@v5
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Prepare Environment
+        run: yarn
+        env:
+          CI: true
+
+      - name: Build Caspar deploy tree
+        run: yarn build
+        env:
+          CI: true
+
+      - name: Package release assets
+        id: package
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.tag }}"
+            SUFFIX="${{ inputs.asset_suffix }}"
+          else
+            VERSION="${GITHUB_REF_NAME}"
+            SUFFIX=""
+          fi
+          VERSION="${VERSION#v}"
+          SUFFIX="${SUFFIX:-$VERSION}"
+          ZIP_NAME="sofie-demo-assets_v${SUFFIX}.zip"
+
+          rm -rf package-root
+          mkdir -p package-root/sofie-demo-template package-root/sofie-demo-media
+          cp -a deploy/template-path/. package-root/sofie-demo-template/
+          cp -a deploy/media-path/. package-root/sofie-demo-media/
+
+          (cd package-root && zip -r "../${ZIP_NAME}" sofie-demo-template sofie-demo-media)
+
+          echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.package.outputs.release_tag }}
+          files: |
+            ${{ steps.package.outputs.zip_name }}
+          generate_release_notes: true
+
+  prerelease-demo-assets:
+    name: Pre-release Demo Assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    needs: [lint, build]
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+
+      - name: restore node_modules
+        uses: actions/cache@v5
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Prepare Environment
+        run: yarn
+        env:
+          CI: true
+
+      - name: Build Caspar deploy tree
+        run: yarn build
+        env:
+          CI: true
+
+      - name: Package pre-release assets
+        id: package
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          ZIP_NAME="sofie-demo-assets-pre-${SHORT_SHA}.zip"
+          TAG_NAME="pre-${GITHUB_SHA}"
+
+          rm -rf package-root
+          mkdir -p package-root/sofie-demo-template package-root/sofie-demo-media
+          cp -a deploy/template-path/. package-root/sofie-demo-template/
+          cp -a deploy/media-path/. package-root/sofie-demo-media/
+
+          (cd package-root && zip -r "../${ZIP_NAME}" sofie-demo-template sofie-demo-media)
+
+          echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.package.outputs.tag_name }}
+          name: Pre-release ${{ steps.package.outputs.short_sha }}
+          prerelease: true
+          make_latest: false
+          body: |
+            Automated pre-release CasparCG demo asset build for commit [`${{ steps.package.outputs.short_sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}).
+
+            Extract the zip and copy into your CasparCG paths:
+
+            - `sofie-demo-template/` → `<template-path>`
+            - `sofie-demo-media/` → `<media-path>`
+          files: |
+            ${{ steps.package.outputs.zip_name }}
