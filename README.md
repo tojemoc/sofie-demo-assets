@@ -30,7 +30,7 @@ Produces:
 ```text
 deploy/
   template-path/          → CasparCG <template-path>
-    gfx/<name>/<name>.html
+    gfx/<name>.html
     js/ css/ img/         (shared hashed bundles)
   media-path/             → CasparCG <media-path>
     loops/ clips/ wipes/ assets/
