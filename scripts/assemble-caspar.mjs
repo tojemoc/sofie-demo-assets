@@ -2,7 +2,7 @@
 /**
  * Reorganise vue-cli dist/ into CasparCG deploy folders:
  *
- *   deploy/template-path/gfx/<name>/<name>.html  (+ shared js/css/img at template-path root)
+ *   deploy/template-path/gfx/<name>.html  (+ shared js/css/img at template-path root)
  *   deploy/media-path/{loops,clips,wipes,assets}/
  *
  * Sofie blueprints reference templates as gfx/<name> (e.g. gfx/l3d).
@@ -59,13 +59,12 @@ function copyDir (src, dest) {
   }
 }
 
-function rewriteAssetPaths (html) {
-  const prefix = '../../'
+function rewriteAssetPaths (html, assetPrefix = '../') {
   return html.replace(
-    /(?<![\w-])(href|src)=(["']?)((?:\.\.\/)?(?:css|js|img)\/[^"' >]+|favicon\.ico)/gi,
+    /(?<![\w-])(href|src)=(["']?)((?:\.\.\/)?(?:css|js|img|assets|icons)\/[^"' >]+|favicon\.ico)/gi,
     (match, attr, quote, url) => {
       if (url.startsWith('../')) return match
-      return `${attr}=${quote}${prefix}${url}`
+      return `${attr}=${quote}${assetPrefix}${url}`
     }
   )
 }
@@ -110,11 +109,11 @@ function main () {
       continue
     }
 
-    const destDir = path.join(templateRoot, 'gfx', page)
-    fs.mkdirSync(destDir, { recursive: true })
+    const gfxDir = path.join(templateRoot, 'gfx')
+    fs.mkdirSync(gfxDir, { recursive: true })
 
     const html = fs.readFileSync(srcHtml, 'utf8')
-    fs.writeFileSync(path.join(destDir, `${page}.html`), rewriteAssetPaths(html))
+    fs.writeFileSync(path.join(gfxDir, `${page}.html`), rewriteAssetPaths(html))
   }
 
   ensureMediaScaffold()
