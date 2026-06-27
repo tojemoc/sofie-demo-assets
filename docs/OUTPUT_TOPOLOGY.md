@@ -47,3 +47,34 @@ hypercomposed: {
 ```
 
 Until PR 2 lands, treat **deploy/template-path** as the LED graphics tree.
+
+## Deploy layout (template-path)
+
+`yarn build` writes **flat** Caspar HTML — one file per template:
+
+```text
+deploy/template-path/
+  gfx/headline.html
+  gfx/l3d-headline.html
+  gfx/l3d-tema.html
+  …
+  js/ css/ img/ assets/    ← shared bundles at template-path root
+```
+
+Sofie blueprints load these as `gfx/headline`, `gfx/l3d-tema`, etc. Paths are **not**
+nested as `gfx/<name>/<name>.html`.
+
+### Windows copy targets
+
+```text
+deploy/template-path/*  →  C:\casparcg\sofie-demo-template\
+deploy/media-path/*     →  C:\casparcg\sofie-demo-media\
+```
+
+```xml
+<template-path>sofie-demo-template/</template-path>
+<media-path>sofie-demo-media/</media-path>
+```
+
+Per-rundown clips (`spravy/<rundownExternalId>/clips/*.mp4`) are added on the playout
+machine and stay out of git — see [MEDIA_LAYOUT.md](MEDIA_LAYOUT.md).
