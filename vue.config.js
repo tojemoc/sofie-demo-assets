@@ -1,5 +1,6 @@
 module.exports = {
-  publicPath: '',
+  // Templates deploy to template-path/gfx/*.html; assets live one level up.
+  publicPath: '../',
   pages: {
     headline: {
       entry: 'src/headline/main.js',
