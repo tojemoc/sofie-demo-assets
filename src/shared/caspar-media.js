@@ -11,7 +11,7 @@ export function resolveCasparMediaSrc (filePath) {
   const trimmed = filePath.trim()
   if (!trimmed) return ''
 
-  if (/^(https?:|media:|file:)/i.test(trimmed)) {
+  if (/^(https?:|media:|media\/|file:)/i.test(trimmed)) {
     return trimmed
   }
 

@@ -2,7 +2,7 @@
   <div class="headline-root">
     <div id="ilu-block" ref="iluBlock">
       <video
-        v-if="iluFile"
+        v-if="videoSrc"
         id="ilu-video"
         ref="iluVideo"
         :src="videoSrc"
@@ -69,8 +69,6 @@ export default {
         await fadeOut(this.$refs.sourcePill, 0.2)
       }
 
-      await this.stopIluVideo()
-
       await new Promise(resolve => {
         gsap.to(this.$refs.iluBlock, {
           x: -900,
@@ -79,6 +77,8 @@ export default {
           onComplete: resolve
         })
       })
+
+      await this.stopIluVideo()
     },
     async update (data) {
       await this.stop()

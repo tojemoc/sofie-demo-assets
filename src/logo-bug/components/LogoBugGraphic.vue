@@ -1,7 +1,7 @@
 <template>
-  <div id="logo-bug" ref="logoBug">
-    <img :src="logoSrc" alt="" />
-    <span>sekúnd</span>
+  <div id="logo-bug" ref="logoBug" aria-label="360° sekúnd">
+    <img :src="logoSrc" alt="" aria-hidden="true" />
+    <span aria-hidden="true">sekúnd</span>
   </div>
 </template>
 
