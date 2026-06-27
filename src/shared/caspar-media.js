@@ -1,21 +1,40 @@
+/** H.264 containers CEF cannot decode in HTML <video>; map to WebM sibling on disk. */
+const CEF_UNSUPPORTED_VIDEO = /\.(mp4|mov|m4v|mxf)$/i
+
+function toCefVideoPath (filePath) {
+  if (CEF_UNSUPPORTED_VIDEO.test(filePath)) {
+    return filePath.replace(CEF_UNSUPPORTED_VIDEO, '.webm')
+  }
+  return filePath
+}
+
 /**
  * Resolve a Sofie/Caspar media path for use in HTML template <video>/<img> src.
  *
- * PLAY commands use paths like `spravy/rundown/clips/foo.mp4` relative to
- * <media-path>. CEF cannot load those directly — Caspar serves them via the
- * internal media URL scheme (`media/...`).
+ * Rundown payloads use paths like `spravy/rundown/clips/foo.mp4` relative to
+ * <media-path>. CEF cannot decode H.264 MP4/MOV in <video> — ILU clips must
+ * also exist as `.webm` at the same path. Caspar serves files via `media/...`.
  */
 export function resolveCasparMediaSrc (filePath) {
   if (!filePath || typeof filePath !== 'string') return ''
 
-  const trimmed = filePath.trim()
+  let trimmed = filePath.trim()
   if (!trimmed) return ''
 
-  if (/^(https?:|media:|media\/|file:)/i.test(trimmed)) {
+  if (/^https?:/i.test(trimmed) || /^file:/i.test(trimmed)) {
     return trimmed
   }
 
-  return `media/${trimmed.replace(/^\/+/, '')}`
+  if (/^media:\/?/i.test(trimmed)) {
+    trimmed = trimmed.replace(/^media:\/?/i, '')
+  } else if (/^media\//i.test(trimmed)) {
+    trimmed = trimmed.replace(/^media\//i, '')
+  }
+
+  trimmed = trimmed.replace(/^\/+/, '')
+  trimmed = toCefVideoPath(trimmed)
+
+  return `media/${trimmed}`
 }
 
 /**
