@@ -31,7 +31,7 @@
         :style="cityPosition(city.name)"
       >
         <div class="icon-bg">
-          <img :src="`../../icons/${city.condition}.svg`" :alt="city.condition" />
+          <img :src="`../icons/${city.condition}.svg`" :alt="city.condition" />
         </div>
         <div class="city-text">
           <div class="temp">{{ city.temp }}°C</div>

@@ -34,7 +34,7 @@ export default {
   },
   data () {
     return {
-      logoSrc: require('../../assets/logo-360.svg'),
+      logoSrc: '../assets/logo-360.svg',
       elapsedSeconds: 0,
       counterInterval: null,
       counterTimeouts: [],

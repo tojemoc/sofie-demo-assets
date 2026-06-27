@@ -1,6 +1,6 @@
 <template>
   <div id="logo-bug" ref="logoBug">
-    <img :src="logoSrc" alt="360° sekúnd" />
+    <img :src="logoSrc" alt="" />
     <span>sekúnd</span>
   </div>
 </template>
@@ -12,7 +12,7 @@ export default {
   name: 'LogoBugGraphic',
   data () {
     return {
-      logoSrc: require('../../assets/logo-360.svg')
+      logoSrc: '../assets/logo-360.svg'
     }
   },
   methods: {
