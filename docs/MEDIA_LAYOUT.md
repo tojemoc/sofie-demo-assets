@@ -84,18 +84,22 @@ full media-path-relative path including extension in JSON payloads.
 
 ## ILU headline video (`gfx/headline`)
 
-The **headline** template binds `iluFile` directly to a `<video src>`:
+Caspar HTML templates run in Chromium (CEF), which **does not decode H.264/AAC MP4**
+inside `<video>` tags. MP4 ILU clips must play via Caspar **FFmpeg on layer 110**
+(`PLAY 1-110 spravy/.../headline1`), wired by blueprints alongside the HTML template.
+
+The **headline** template is an overlay only: rounded frame + source pill on layer 121.
+Video shows through the transparent `#ilu-block` from the clip layer below.
 
 ```js
 window.update({
-  iluFile: 'spravy/spravy-v3-smoke/clips/headline1.mp4',
+  iluFile: 'spravy/spravy-v3-smoke/clips/headline1.mp4', // used by blueprints PLAY
   source: 'TASR'
 })
 ```
 
-The value is a path **relative to Caspar `<media-path>`**, not the template folder.
-Caspar resolves it under `sofie-demo-media/` (or whatever `<media-path>` points to).
-No `media/` or `file://` prefix is required.
+`iluFile` stays in the template payload for Package Manager / expectedPackages.
+Blueprints strip the extension for Caspar PLAY (`headline1` not `headline1.mp4`).
 
 VT pieces use the same path in `fileName`; gfx headline pieces use `iluFile`. Both
 must match the on-disk layout above so Package Manager and Caspar agree on the file
