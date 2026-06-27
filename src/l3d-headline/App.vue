@@ -27,6 +27,9 @@ export default {
       applyData: data => {
         if (data.title !== undefined) this.title = data.title
         if (data.subtitle !== undefined) this.subtitle = data.subtitle
+        // Blueprint smoke rundowns still send headline/subline; accept both.
+        if (data.headline !== undefined) this.title = data.headline
+        if (data.subline !== undefined) this.subtitle = data.subline
       },
       onDevAutoplay: () => {
         this.title = 'Premiér vysvetľoval'

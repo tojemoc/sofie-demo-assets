@@ -45,12 +45,20 @@ Shared parser: `src/shared/caspar-bridge.js` (v2 templates).
 
 Console example: `window.update({ headline: "R. Fico o M. Ficovi" })`
 
-Sofie field names: see root `README.md` table.
+Sofie field names: see root `README.md` table. Per-rundown media:
+`docs/MEDIA_LAYOUT.md`.
 
 ### Output layout
 
 After `yarn build`, copy `deploy/template-path` and `deploy/media-path` to Caspar.
+Templates land as flat `deploy/template-path/gfx/<name>.html` (not nested subfolders).
 See `docs/OUTPUT_TOPOLOGY.md` for LED vs PGM (one Caspar, two channels).
+
+### Rundown Editor preview
+
+`yarn serve` on port 8080 is the RE `PREVIEW_BASE_URL` dev target. Preview URLs:
+`http://localhost:8080/<template>/index.html?<field>=…` (folder names match
+`vue.config.js` / `assemble-caspar.mjs` pages).
 
 ### Adding a template
 
