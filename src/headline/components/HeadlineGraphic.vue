@@ -1,6 +1,15 @@
 <template>
   <div class="headline-root">
     <div id="ilu-block" ref="iluBlock">
+      <video
+        v-if="videoSrc"
+        id="ilu-video"
+        ref="iluVideo"
+        :src="videoSrc"
+        muted
+        loop
+        playsinline
+      />
       <div v-if="sourceLabel" id="source-pill" ref="sourcePill">{{ sourceLabel }}</div>
     </div>
   </div>
@@ -9,6 +18,7 @@
 <script>
 import { gsap } from 'gsap'
 import { fadeIn, fadeOut } from '../../shared/animations'
+import { playCasparVideo, resolveCasparMediaSrc } from '../../shared/caspar-media'
 
 export default {
   name: 'HeadlineGraphic',
@@ -17,6 +27,9 @@ export default {
     source: { type: String, default: '' }
   },
   computed: {
+    videoSrc () {
+      return resolveCasparMediaSrc(this.iluFile)
+    },
     sourceLabel () {
       if (!this.source || !String(this.source).trim()) return ''
       const s = String(this.source).trim()
@@ -24,9 +37,20 @@ export default {
     }
   },
   methods: {
+    async playIluVideo () {
+      if (!this.videoSrc) return
+      try {
+        await playCasparVideo(this.$refs.iluVideo)
+      } catch (_err) {
+        // Video may fail if the WebM clip is missing or unsupported in CEF.
+      }
+    },
     async play () {
       gsap.set(this.$refs.iluBlock, { x: 0 })
       if (this.$refs.sourcePill) gsap.set(this.$refs.sourcePill, { opacity: 0 })
+
+      await this.$nextTick()
+      await this.playIluVideo()
 
       await new Promise(resolve => {
         gsap.from(this.$refs.iluBlock, {
@@ -54,6 +78,8 @@ export default {
           onComplete: resolve
         })
       })
+
+      await this.stopIluVideo()
     },
     async update (data) {
       await this.stop()
@@ -61,6 +87,12 @@ export default {
       if (data.source !== undefined) this.$parent.source = data.source
       await this.$nextTick()
       await this.play()
+    },
+    async stopIluVideo () {
+      const video = this.$refs.iluVideo
+      if (!video) return
+      video.pause()
+      video.currentTime = 0
     }
   }
 }
@@ -80,9 +112,15 @@ export default {
   bottom: 12%;
   border-radius: 24px;
   overflow: hidden;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.25);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
   pointer-events: none;
+}
+
+#ilu-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 #source-pill {

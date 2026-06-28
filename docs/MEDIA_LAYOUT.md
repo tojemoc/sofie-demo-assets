@@ -85,21 +85,32 @@ full media-path-relative path including extension in JSON payloads.
 ## ILU headline video (`gfx/headline`)
 
 Caspar HTML templates run in Chromium (CEF), which **does not decode H.264/AAC MP4**
-inside `<video>` tags. MP4 ILU clips must play via Caspar **FFmpeg on layer 110**
-(`PLAY 1-110 spravy/.../headline1`), wired by blueprints alongside the HTML template.
+inside `<video>` tags. ILU headline video plays **inside the template** on layer 121,
+clipped to `#ilu-block` so it slides in/out with the GSAP window animation.
 
-The **headline** template is an overlay only: rounded frame + source pill on layer 121.
-Video shows through the transparent `#ilu-block` from the clip layer below.
+Rundowns and Package Manager still reference the **MP4 master** in `iluFile`. The
+template maps that to a **WebM sibling** for CEF playback:
+
+```text
+spravy/spravy-v3-smoke/clips/headline1.mp4   ← ingest / editorial master
+spravy/spravy-v3-smoke/clips/headline1.webm  ← required on Caspar for ILU playback
+```
+
+Transcode example (VP9 + Opus, good CEF compatibility):
+
+```bash
+ffmpeg -i headline1.mp4 -c:v libvpx-vp9 -crf 30 -b:v 0 -c:a libopus headline1.webm
+```
 
 ```js
 window.update({
-  iluFile: 'spravy/spravy-v3-smoke/clips/headline1.mp4', // used by blueprints PLAY
+  iluFile: 'spravy/spravy-v3-smoke/clips/headline1.mp4', // resolves to .webm in template
   source: 'TASR'
 })
 ```
 
-`iluFile` stays in the template payload for Package Manager / expectedPackages.
-Blueprints strip the extension for Caspar PLAY (`headline1` not `headline1.mp4`).
+Layer 110 stays reserved for the LED background loop (`loops/360_loop`); ILU clips
+do **not** PLAY on layer 110.
 
 VT pieces use the same path in `fileName`; gfx headline pieces use `iluFile`. Both
 must match the on-disk layout above so Package Manager and Caspar agree on the file
