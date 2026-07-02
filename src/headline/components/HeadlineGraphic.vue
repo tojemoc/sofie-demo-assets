@@ -1,16 +1,18 @@
 <template>
   <div class="headline-root">
-    <div id="ilu-block" ref="iluBlock">
-      <video
-        v-if="videoSrc"
-        id="ilu-video"
-        ref="iluVideo"
-        :src="videoSrc"
-        muted
-        loop
-        playsinline
-      />
-      <div v-if="sourceLabel" id="source-pill" ref="sourcePill">{{ sourceLabel }}</div>
+    <div id="ilu-slide" ref="iluSlide">
+      <div id="ilu-block" ref="iluBlock">
+        <video
+          v-if="videoSrc"
+          id="ilu-video"
+          ref="iluVideo"
+          :src="videoSrc"
+          muted
+          loop
+          playsinline
+        />
+        <div v-if="sourceLabel" id="source-pill" ref="sourcePill">{{ sourceLabel }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -46,14 +48,14 @@ export default {
       }
     },
     async play () {
-      gsap.set(this.$refs.iluBlock, { x: 0 })
+      gsap.set(this.$refs.iluSlide, { x: 0 })
       if (this.$refs.sourcePill) gsap.set(this.$refs.sourcePill, { opacity: 0 })
 
       await this.$nextTick()
       await this.playIluVideo()
 
       await new Promise(resolve => {
-        gsap.from(this.$refs.iluBlock, {
+        gsap.from(this.$refs.iluSlide, {
           x: -900,
           duration: 0.55,
           ease: 'power3.out',
@@ -71,7 +73,7 @@ export default {
       }
 
       await new Promise(resolve => {
-        gsap.to(this.$refs.iluBlock, {
+        gsap.to(this.$refs.iluSlide, {
           x: -900,
           duration: 0.45,
           ease: 'power3.in',
@@ -104,12 +106,19 @@ export default {
   inset: 0;
 }
 
-#ilu-block {
+/* Slide transform on wrapper only — CEF will not paint <video> inside a transformed node. */
+#ilu-slide {
   position: absolute;
   left: 8%;
   top: 15%;
   width: 62%;
   bottom: 12%;
+  pointer-events: none;
+}
+
+#ilu-block {
+  width: 100%;
+  height: 100%;
   border-radius: 24px;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.25);
