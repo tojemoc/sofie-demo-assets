@@ -13,6 +13,7 @@ After `yarn build`, Caspar loads templates as **`gfx/<name>`** — flat HTML fil
 | Template folder | Caspar clipName | `window.update(data)` keys |
 |-----------------|-----------------|----------------------------|
 | `headline` | `gfx/headline` | `iluFile`, `source` |
+| `headline-fallback` | `gfx/headline-fallback` | `source` (for layer-110 MP4 fallback) |
 | `l3d-headline` | `gfx/l3d-headline` | `title`, `subtitle` (aliases: `headline`, `subline`) |
 | `l3d-tema` | `gfx/l3d-tema` | `headline` |
 | `l3d-mod` | `gfx/l3d-mod` | `name` |
@@ -87,6 +88,7 @@ pages and `scripts/assemble-caspar.mjs`. There is no root `index.html`.
 Per-template dev URLs:
 
 - http://localhost:8080/headline/index.html
+- http://localhost:8080/headline-fallback/index.html
 - http://localhost:8080/l3d-headline/index.html
 - http://localhost:8080/l3d-mod/index.html
 - http://localhost:8080/l3d-tema/index.html

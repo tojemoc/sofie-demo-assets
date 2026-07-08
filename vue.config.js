@@ -6,6 +6,10 @@ module.exports = {
       entry: 'src/headline/main.js',
       filename: 'headline/index.html'
     },
+    'headline-fallback': {
+      entry: 'src/headline-fallback/main.js',
+      filename: 'headline-fallback/index.html'
+    },
     'l3d-headline': {
       entry: 'src/l3d-headline/main.js',
       filename: 'l3d-headline/index.html'

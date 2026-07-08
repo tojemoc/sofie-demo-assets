@@ -21,6 +21,7 @@ const mediaRoot = path.join(deployRoot, 'media-path')
 
 const pages = [
   'headline',
+  'headline-fallback',
   'l3d-headline',
   'l3d-mod',
   'l3d-tema',
