@@ -15,6 +15,11 @@ Caspar `template-path` + `media-path`. No backend or long-running service.
 
 `yarn build` = `yarn build:vue` + `node scripts/assemble-caspar.mjs`.
 
+### Cloud environment bootstrap
+
+Cursor Cloud can run `bash scripts/cloud-agent-setup.sh` (also referenced from
+`.cursor/environment.json`) to install dependencies and run `yarn lint` + `yarn build`.
+
 ### OpenSSL legacy provider
 
 Webpack 4 needs `NODE_OPTIONS=--openssl-legacy-provider` on Node 17+ — already set in
