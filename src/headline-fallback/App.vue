@@ -3,6 +3,7 @@
     <headline-fallback-graphic
       ref="graphic"
       :source="source"
+      @source-updated="handleSourceUpdated"
     />
   </div>
 </template>
@@ -18,6 +19,11 @@ export default {
   data () {
     return {
       source: ''
+    }
+  },
+  methods: {
+    handleSourceUpdated (nextSource) {
+      this.source = nextSource
     }
   },
   mounted () {

@@ -57,7 +57,7 @@ export default {
     },
     async update (data) {
       await this.stop()
-      if (data.source !== undefined) this.$parent.source = data.source
+      if (data.source !== undefined) this.$emit('source-updated', data.source)
       await this.$nextTick()
       await this.play()
     }
