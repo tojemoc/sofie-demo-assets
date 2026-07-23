@@ -13,7 +13,7 @@ After `yarn build`, Caspar loads templates as **`gfx/<name>`** — flat HTML fil
 | Template folder | Caspar clipName | `window.update(data)` keys |
 |-----------------|-----------------|----------------------------|
 | `headline` | `gfx/headline` | `iluFile`, `source` |
-| `headline-fallback` | `gfx/headline-fallback` | `source` (for layer-110 MP4 fallback) |
+| `headline-fallback` | `gfx/headline-fallback` | `source` (ILU chrome overlay; video is Caspar MEDIA) |
 | `l3d-headline` | `gfx/l3d-headline` | `title`, `subtitle` (aliases: `headline`, `subline`) |
 | `l3d-tema` | `gfx/l3d-tema` | `headline` |
 | `l3d-mod` | `gfx/l3d-mod` | `name` |

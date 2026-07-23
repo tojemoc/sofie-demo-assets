@@ -1,37 +1,26 @@
 <template>
   <div class="headline-root">
     <div id="ilu-slide" ref="iluSlide">
-      <div id="ilu-block" ref="iluBlock">
-        <video
-          v-if="videoSrc"
-          id="ilu-video"
-          ref="iluVideo"
-          :src="videoSrc"
-          muted
-          loop
-          playsinline
-        />
-        <div v-if="sourceLabel" id="source-pill" ref="sourcePill">{{ sourceLabel }}</div>
-      </div>
+      <div id="ilu-window" />
+      <div v-if="sourceLabel" id="source-pill" ref="sourcePill">{{ sourceLabel }}</div>
     </div>
   </div>
 </template>
 
 <script>
 import { gsap } from 'gsap'
-import { fadeIn, fadeOut } from '../../shared/animations'
-import { playCasparVideo, resolveCasparMediaSrc } from '../../shared/caspar-media'
+import { fadeIn, fadeOut, killAnimations } from '../../shared/animations'
 
+/**
+ * Overlay-only headline chrome. ILU video is always played by CasparCG MEDIA
+ * (cropped into this window, or fullscreen prerendered/bypass — never HTML <video>/WebM).
+ */
 export default {
   name: 'HeadlineGraphic',
   props: {
-    iluFile: { type: String, default: '' },
     source: { type: String, default: '' }
   },
   computed: {
-    videoSrc () {
-      return resolveCasparMediaSrc(this.iluFile)
-    },
     sourceLabel () {
       if (!this.source || !String(this.source).trim()) return ''
       const s = String(this.source).trim()
@@ -39,20 +28,10 @@ export default {
     }
   },
   methods: {
-    async playIluVideo () {
-      if (!this.videoSrc) return
-      try {
-        await playCasparVideo(this.$refs.iluVideo)
-      } catch (_err) {
-        // Video may fail if the WebM clip is missing or unsupported in CEF.
-      }
-    },
     async play () {
+      killAnimations([this.$refs.iluSlide, this.$refs.sourcePill].filter(Boolean))
       gsap.set(this.$refs.iluSlide, { x: 0 })
       if (this.$refs.sourcePill) gsap.set(this.$refs.sourcePill, { opacity: 0 })
-
-      await this.$nextTick()
-      await this.playIluVideo()
 
       await new Promise(resolve => {
         gsap.from(this.$refs.iluSlide, {
@@ -68,6 +47,7 @@ export default {
       }
     },
     async stop () {
+      killAnimations([this.$refs.iluSlide, this.$refs.sourcePill].filter(Boolean))
       if (this.$refs.sourcePill) {
         await fadeOut(this.$refs.sourcePill, 0.2)
       }
@@ -80,21 +60,12 @@ export default {
           onComplete: resolve
         })
       })
-
-      await this.stopIluVideo()
     },
     async update (data) {
       await this.stop()
-      if (data.iluFile !== undefined) this.$parent.iluFile = data.iluFile
-      if (data.source !== undefined) this.$parent.source = data.source
+      if (data.source !== undefined) this.$emit('source-updated', data.source)
       await this.$nextTick()
       await this.play()
-    },
-    async stopIluVideo () {
-      const video = this.$refs.iluVideo
-      if (!video) return
-      video.pause()
-      video.currentTime = 0
     }
   }
 }
@@ -106,7 +77,6 @@ export default {
   inset: 0;
 }
 
-/* Slide transform on wrapper only — CEF will not paint <video> inside a transformed node. */
 #ilu-slide {
   position: absolute;
   left: 8%;
@@ -116,20 +86,13 @@ export default {
   pointer-events: none;
 }
 
-#ilu-block {
+/* Transparent so Caspar MEDIA on layer 115 (MIXER FILL) shows through. */
+#ilu-window {
   width: 100%;
   height: 100%;
   border-radius: 24px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.25);
+  background: transparent;
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
-  pointer-events: none;
-}
-
-#ilu-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 #source-pill {

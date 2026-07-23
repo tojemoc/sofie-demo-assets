@@ -9,7 +9,7 @@
 
 <script>
 import { gsap } from 'gsap'
-import { fadeIn, fadeOut } from '../../shared/animations'
+import { fadeIn, fadeOut, killAnimations } from '../../shared/animations'
 
 export default {
   name: 'HeadlineFallbackGraphic',
@@ -25,6 +25,7 @@ export default {
   },
   methods: {
     async play () {
+      killAnimations([this.$refs.iluSlide, this.$refs.sourcePill].filter(Boolean))
       gsap.set(this.$refs.iluSlide, { x: 0 })
       if (this.$refs.sourcePill) gsap.set(this.$refs.sourcePill, { opacity: 0 })
 
@@ -42,6 +43,7 @@ export default {
       }
     },
     async stop () {
+      killAnimations([this.$refs.iluSlide, this.$refs.sourcePill].filter(Boolean))
       if (this.$refs.sourcePill) {
         await fadeOut(this.$refs.sourcePill, 0.2)
       }

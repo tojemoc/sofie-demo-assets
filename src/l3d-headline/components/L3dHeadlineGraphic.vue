@@ -1,13 +1,15 @@
 <template>
   <div id="headline-stack">
-    <div v-if="title" class="headline-bar" id="bar-title" ref="barTitle">{{ title }}</div>
-    <div v-if="subtitle" class="headline-bar" id="bar-subtitle" ref="barSubtitle">{{ subtitle }}</div>
+    <div class="headline-bar" id="bar-title" ref="barTitle" :class="{ 'is-empty': !title }">{{ title }}</div>
+    <div class="headline-bar" id="bar-subtitle" ref="barSubtitle" :class="{ 'is-empty': !subtitle }">{{ subtitle }}</div>
   </div>
 </template>
 
 <script>
 import { gsap } from 'gsap'
-import { slideElementIn, slideElementOut } from '../../shared/animations'
+import { killAnimations, slideElementIn, slideElementOut } from '../../shared/animations'
+
+const OFFSCREEN_X = -1200
 
 export default {
   name: 'L3dHeadlineGraphic',
@@ -15,25 +17,41 @@ export default {
     title: { type: String, default: '' },
     subtitle: { type: String, default: '' }
   },
+  mounted () {
+    // Start fully off-screen so a partial/interrupted stop never leaves a sliver on the left.
+    gsap.set([this.$refs.barTitle, this.$refs.barSubtitle], { x: OFFSCREEN_X })
+  },
   methods: {
+    activeBars () {
+      const bars = []
+      if (this.title && this.$refs.barTitle) bars.push(this.$refs.barTitle)
+      if (this.subtitle && this.$refs.barSubtitle) bars.push(this.$refs.barSubtitle)
+      return bars
+    },
     async play () {
-      gsap.set([this.$refs.barTitle, this.$refs.barSubtitle].filter(Boolean), { x: 0 })
+      const bars = this.activeBars()
+      killAnimations([this.$refs.barTitle, this.$refs.barSubtitle])
+      gsap.set([this.$refs.barTitle, this.$refs.barSubtitle], { x: OFFSCREEN_X })
+      if (!bars.length) return
 
-      if (this.$refs.barTitle) {
-        await slideElementIn(this.$refs.barTitle, -700, 0.4, 0.3)
-      }
-      if (this.$refs.barSubtitle) {
-        await slideElementIn(this.$refs.barSubtitle, -700, 0.4, 0.45)
+      // Park empty bars off-screen; animate active ones in.
+      for (let i = 0; i < bars.length; i++) {
+        await slideElementIn(bars[i], OFFSCREEN_X, 0.4, i === 0 ? 0.05 : 0.12)
       }
     },
     async stop () {
       const bars = [this.$refs.barTitle, this.$refs.barSubtitle].filter(Boolean)
-      await Promise.all(bars.map(bar => slideElementOut(bar, -700, 0.35)))
+      killAnimations(bars)
+      await Promise.all(bars.map(bar => slideElementOut(bar, OFFSCREEN_X, 0.35)))
+      // Hard-park off-screen so unload / interrupted stop cannot leave a stuck sliver.
+      gsap.set(bars, { x: OFFSCREEN_X })
     },
     async update (data) {
       await this.stop()
       if (data.title !== undefined) this.$parent.title = data.title
       if (data.subtitle !== undefined) this.$parent.subtitle = data.subtitle
+      if (data.headline !== undefined) this.$parent.title = data.headline
+      if (data.subline !== undefined) this.$parent.subtitle = data.subline
       await this.$nextTick()
       await this.play()
     }
@@ -60,6 +78,14 @@ export default {
   border-radius: 8px;
   padding: 12px 20px;
   white-space: nowrap;
+  will-change: transform;
+}
+
+.headline-bar.is-empty {
+  visibility: hidden;
+  padding: 0;
+  min-height: 0;
+  pointer-events: none;
 }
 
 #bar-title {
