@@ -82,38 +82,38 @@ Caspar `PLAY` commands omit the extension (`PLAY 1-10 spravy/.../headline1`), bu
 the file **on disk must include `.mp4`**. Blueprints and templates always use the
 full media-path-relative path including extension in JSON payloads.
 
-## ILU headline video (`gfx/headline`)
+## ILU headline video (`gfx/headline` / `gfx/headline-fallback`)
 
-Caspar HTML templates run in Chromium (CEF), which **does not decode H.264/AAC MP4**
-inside `<video>` tags. ILU headline video plays **inside the template** on layer 121,
-clipped to `#ilu-block` so it slides in/out with the GSAP window animation.
+ILU video is **always played by CasparCG MEDIA** on layer **115** (`casparcg_ilu_player`).
+HTML templates never load `.webm` / `<video>` for ILU — they only draw the chrome frame
+and source pill (when used).
 
-Rundowns and Package Manager still reference the **MP4 master** in `iluFile`. The
-template maps that to a **WebM sibling** for CEF playback:
+Toggle on the headline piece: **ILU prerendered/bypass** (`iluPrerendered`):
+
+| Mode | Payload | Caspar behaviour |
+|------|---------|------------------|
+| OFF (default) | `iluPrerendered: false` | PLAY full-frame 16:9 `.mp4`, MIXER CROP (cover) + FILL into `#ilu-slide` (`0.08 / 0.15 / 0.62 / 0.73`), plus `gfx/headline-fallback` overlay |
+| ON | `iluPrerendered: true` | PLAY pre-rendered alpha `.mov` with baked headline motion, FILL `0 0 1 1` (fullscreen); **no** HTML chrome |
+
+Legacy `iluFallback: true` is treated as prerendered/bypass ON.
 
 ```text
-spravy/spravy-v3-smoke/clips/headline1.mp4   ← ingest / editorial master
-spravy/spravy-v3-smoke/clips/headline1.webm  ← required on Caspar for ILU playback
-```
-
-Transcode example (VP9 + Opus, good CEF compatibility):
-
-```bash
-ffmpeg -i headline1.mp4 -c:v libvpx-vp9 -crf 30 -b:v 0 -c:a libopus headline1.webm
+spravy/spravy-v3-smoke/clips/headline1.mp4   ← cropped ILU master (bypass OFF)
+spravy/…/clips/headline1.mov                 ← optional prerendered alpha (bypass ON)
 ```
 
 ```js
-window.update({
-  iluFile: 'spravy/spravy-v3-smoke/clips/headline1.mp4', // resolves to .webm in template
-  source: 'TASR'
-})
+// Softie / Package Manager still reference the master with extension:
+iluFile: 'spravy/spravy-v3-smoke/clips/headline1.mp4'
+// Caspar PLAY omits the extension:
+PLAY 1-115 "spravy/spravy-v3-smoke/clips/headline1"
 ```
 
 Layer 110 stays reserved for the LED background loop (`loops/360_loop`); ILU clips
 do **not** PLAY on layer 110.
 
 VT pieces use the same path in `fileName`; gfx headline pieces use `iluFile`. Both
-must match the on-disk layout above so Package Manager and Caspar agree on the file
+must match the on-disk layout so Package Manager and Caspar agree on the file
 location.
 
 ## Shared scaffold clips
