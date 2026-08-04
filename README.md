@@ -58,8 +58,8 @@ deploy/template-path/*  →  C:\casparcg\sofie-demo-template\
 deploy/media-path/*     →  C:\casparcg\sofie-demo-media\
 ```
 
-Add per-rundown clips under `sofie-demo-media/spravy/<rundownExternalId>/clips/`
-on the machine — see [docs/MEDIA_LAYOUT.md](docs/MEDIA_LAYOUT.md).
+Add clips under `sofie-demo-media/clips/` (also `loops/`, `wipes/`) on the machine —
+two levels only — see [docs/MEDIA_LAYOUT.md](docs/MEDIA_LAYOUT.md).
 
 CasparCG `casparcg.config`:
 
@@ -127,7 +127,7 @@ Folder names must match the `pages` list in `vue.config.js` and
 ## Media & ILU paths
 
 Production `.mp4` clips are **not** in git. See [docs/MEDIA_LAYOUT.md](docs/MEDIA_LAYOUT.md)
-for the `spravy/<rundownExternalId>/clips/` convention, Package Manager ingest mirror,
+for the flat `clips/` / `loops/` / `wipes/` convention, Package Manager ingest mirror,
 and how `iluFile` resolves under Caspar `<media-path>`.
 
 ## LED vs PGM
