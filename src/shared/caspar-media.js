@@ -11,9 +11,10 @@ function toCefVideoPath (filePath) {
 /**
  * Resolve a Sofie/Caspar media path for use in HTML template <video>/<img> src.
  *
- * Rundown payloads use paths like `spravy/rundown/clips/foo.mp4` relative to
- * <media-path>. CEF cannot decode H.264 MP4/MOV in <video> — ILU clips must
- * also exist as `.webm` at the same path. Caspar serves files via `media/...`.
+ * Rundown payloads use paths like `clips/foo.mp4` relative to
+ * <media-path> (two levels: `<subdir>/<file>`). CEF cannot decode H.264 MP4/MOV in
+ * <video> — ILU clips must also exist as `.webm` at the same path. Caspar serves
+ * files via `media/...`.
  */
 export function resolveCasparMediaSrc (filePath) {
   if (!filePath || typeof filePath !== 'string') return ''

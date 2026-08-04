@@ -76,5 +76,5 @@ deploy/media-path/*     →  C:\casparcg\sofie-demo-media\
 <media-path>sofie-demo-media/</media-path>
 ```
 
-Per-rundown clips (`spravy/<rundownExternalId>/clips/*.mp4`) are added on the playout
-machine and stay out of git — see [MEDIA_LAYOUT.md](MEDIA_LAYOUT.md).
+Shared clips live under `clips/*.mp4` on the playout machine (same two-level
+layout as `loops/` / `wipes/`) — see [MEDIA_LAYOUT.md](MEDIA_LAYOUT.md).
