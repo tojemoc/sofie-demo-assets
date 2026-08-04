@@ -76,5 +76,5 @@ deploy/media-path/*     →  C:\casparcg\sofie-demo-media\
 <media-path>sofie-demo-media/</media-path>
 ```
 
-Per-show clips live under `clips/*.mp4` on the playout machine (same two-level
+Shared clips live under `clips/*.mp4` on the playout machine (same two-level
 layout as `loops/` / `wipes/`) — see [MEDIA_LAYOUT.md](MEDIA_LAYOUT.md).
