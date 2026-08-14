@@ -27,9 +27,24 @@ export function parseCasparUpdate (data) {
 
 /**
  * Bind window.play / stop / update for a Vue root with a graphic component ref.
+ *
+ * Caspar may invoke PLAY before UPDATE (or only send data once on UPDATE after ADD).
+ * Cache the last payload and re-apply it on play() after Vue has flushed bindings.
  */
 export function bindCasparApi (vm, { applyData, ref = 'graphic', onDevAutoplay }) {
-  window.play = () => {
+  let pendingData = null
+
+  const mergeAndApply = data => {
+    pendingData = { ...pendingData, ...data }
+    applyData(pendingData)
+  }
+
+  window.play = async () => {
+    if (pendingData) {
+      applyData(pendingData)
+    }
+    await vm.$nextTick()
+
     const graphic = vm.$refs[ref]
     if (graphic && graphic.play) {
       return graphic.play()
@@ -49,12 +64,13 @@ export function bindCasparApi (vm, { applyData, ref = 'graphic', onDevAutoplay }
     const data = parseCasparUpdate(raw)
     if (!data) return Promise.resolve()
 
+    mergeAndApply(data)
+
     const graphic = vm.$refs[ref]
     if (graphic && graphic.update) {
       return graphic.update(data)
     }
 
-    applyData(data)
     return Promise.resolve()
   }
 

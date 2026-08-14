@@ -38,6 +38,12 @@ export default {
           onComplete: resolve
         })
       })
+    },
+    async update (data) {
+      await this.stop()
+      if (data.name !== undefined) this.$parent.name = data.name
+      await this.$nextTick()
+      await this.play()
     }
   }
 }
