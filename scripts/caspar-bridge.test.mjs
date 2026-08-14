@@ -89,10 +89,13 @@ test('bindCasparApi: update with graphic.update skips applyData until play', asy
 })
 
 test('bindCasparApi: headline then title then play replays canonical headline', async () => {
+  const updatePayloads = []
   const graphic = {
     play: async () => {},
     stop: async () => {},
-    async update () {}
+    async update (data) {
+      updatePayloads.push({ ...data })
+    }
   }
 
   const vm = {
@@ -108,11 +111,17 @@ test('bindCasparApi: headline then title then play replays canonical headline', 
     }
   })
 
-  await window.update({ headline: 'First' })
+  await window.update({ headline: 'First', guest: 'A' })
   assert.equal(vm.headline, '', 'parent unchanged before play when graphic.update exists')
+  assert.deepEqual(updatePayloads[0], { headline: 'First', guest: 'A' })
 
   await window.update({ title: 'Second' })
   assert.equal(vm.headline, '')
+  assert.deepEqual(
+    updatePayloads[1],
+    { headline: 'Second', guest: 'A' },
+    'graphic.update receives the full cached payload, not only the newest field'
+  )
 
   await window.play()
   assert.equal(vm.headline, 'Second')
