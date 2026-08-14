@@ -27,6 +27,7 @@ export default {
     async update (data) {
       await this.stop()
       if (data.headline !== undefined) this.$parent.headline = data.headline
+      else if (data.title !== undefined) this.$parent.headline = data.title
       await this.$nextTick()
       await this.play()
     }

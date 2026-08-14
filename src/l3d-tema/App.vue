@@ -19,6 +19,7 @@ export default {
     bindCasparApi(this, {
       applyData: data => {
         if (data.headline !== undefined) this.headline = data.headline
+        else if (data.title !== undefined) this.headline = data.title
       },
       onDevAutoplay: () => {
         this.headline = 'R. Fico o M. Ficovi'

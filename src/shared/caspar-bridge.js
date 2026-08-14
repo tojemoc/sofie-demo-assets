@@ -1,6 +1,8 @@
 /**
  * Parse CasparCG / Sofie template update payloads.
  */
+import { mergePendingData } from './caspar-bridge-pending.mjs'
+
 export function parseCasparUpdate (data) {
   if (typeof data === 'string') {
     data = data.replace(
@@ -27,9 +29,23 @@ export function parseCasparUpdate (data) {
 
 /**
  * Bind window.play / stop / update for a Vue root with a graphic component ref.
+ *
+ * Caspar may invoke PLAY before UPDATE (or only send data once on UPDATE after ADD).
+ * Cache the last payload and re-apply it on play() after Vue has flushed bindings.
  */
 export function bindCasparApi (vm, { applyData, ref = 'graphic', onDevAutoplay }) {
-  window.play = () => {
+  let pendingData = null
+
+  const mergePending = data => {
+    pendingData = mergePendingData(pendingData, data)
+  }
+
+  window.play = async () => {
+    if (pendingData) {
+      applyData(pendingData)
+    }
+    await vm.$nextTick()
+
     const graphic = vm.$refs[ref]
     if (graphic && graphic.play) {
       return graphic.play()
@@ -49,12 +65,14 @@ export function bindCasparApi (vm, { applyData, ref = 'graphic', onDevAutoplay }
     const data = parseCasparUpdate(raw)
     if (!data) return Promise.resolve()
 
+    mergePending(data)
+
     const graphic = vm.$refs[ref]
     if (graphic && graphic.update) {
-      return graphic.update(data)
+      return graphic.update(pendingData)
     }
 
-    applyData(data)
+    applyData(pendingData)
     return Promise.resolve()
   }
 
