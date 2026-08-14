@@ -7,7 +7,8 @@
     "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
     "build:vue": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
     "build": "yarn build:vue && node scripts/assemble-caspar.mjs",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "node --test scripts/caspar-bridge.test.mjs"
   },
   "author": "tojemoc",
   "license": "MIT",

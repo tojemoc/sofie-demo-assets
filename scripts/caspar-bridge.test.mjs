@@ -1,0 +1,119 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { mergePendingData } from '../src/shared/caspar-bridge-pending.mjs'
+import { bindCasparApi } from '../src/shared/caspar-bridge.js'
+
+test('mergePendingData: title-only maps to headline', () => {
+  const pending = mergePendingData(null, { title: 'Téma' })
+  assert.equal(pending.headline, 'Téma')
+  assert.equal(pending.title, undefined)
+})
+
+test('mergePendingData: headline then title — title wins', () => {
+  let pending = mergePendingData(null, { headline: 'First' })
+  pending = mergePendingData(pending, { title: 'Second' })
+  assert.equal(pending.headline, 'Second')
+  assert.equal(pending.title, undefined)
+})
+
+test('mergePendingData: preserves unrelated fields', () => {
+  let pending = mergePendingData(null, { headline: 'A', foo: 'bar' })
+  pending = mergePendingData(pending, { title: 'B' })
+  assert.equal(pending.headline, 'B')
+  assert.equal(pending.foo, 'bar')
+})
+
+test('mergePendingData: headline wins when both aliases appear in one payload', () => {
+  const pending = mergePendingData(null, { headline: 'Headline', title: 'Title' })
+  assert.equal(pending.headline, 'Headline')
+  assert.equal(pending.title, undefined)
+})
+
+test('bindCasparApi: update with graphic.update skips applyData until play', async () => {
+  const order = []
+  let playing = false
+
+  const graphic = {
+    async play () {
+      playing = true
+      order.push('graphic.play')
+    },
+    async stop () {
+      playing = false
+      order.push('graphic.stop')
+    },
+    async update (data) {
+      order.push('graphic.update:start')
+      assert.equal(playing, true, 'expected active playback before update')
+      await this.stop()
+      order.push('graphic.update:after-stop')
+      if (data.headline !== undefined) vm.headline = data.headline
+      await vm.$nextTick()
+      await this.play()
+      order.push('graphic.update:done')
+    }
+  }
+
+  const vm = {
+    headline: 'initial',
+    $refs: { graphic },
+    $nextTick: () => Promise.resolve()
+  }
+
+  global.window = {}
+  bindCasparApi(vm, {
+    applyData: () => {
+      order.push('applyData')
+    }
+  })
+
+  await graphic.play()
+  assert.deepEqual(order, ['graphic.play'])
+
+  await window.update({ headline: 'Live' })
+
+  assert.deepEqual(order, [
+    'graphic.play',
+    'graphic.update:start',
+    'graphic.stop',
+    'graphic.update:after-stop',
+    'graphic.play',
+    'graphic.update:done'
+  ])
+  assert.ok(!order.includes('applyData'), 'applyData must not run during graphic.update')
+
+  order.length = 0
+  await window.play()
+  assert.deepEqual(order, ['applyData', 'graphic.play'])
+  assert.equal(vm.headline, 'Live')
+})
+
+test('bindCasparApi: headline then title then play replays canonical headline', async () => {
+  const graphic = {
+    play: async () => {},
+    stop: async () => {},
+    async update () {}
+  }
+
+  const vm = {
+    headline: '',
+    $refs: { graphic },
+    $nextTick: () => Promise.resolve()
+  }
+
+  global.window = {}
+  bindCasparApi(vm, {
+    applyData: data => {
+      if (data.headline !== undefined) vm.headline = data.headline
+    }
+  })
+
+  await window.update({ headline: 'First' })
+  assert.equal(vm.headline, '', 'parent unchanged before play when graphic.update exists')
+
+  await window.update({ title: 'Second' })
+  assert.equal(vm.headline, '')
+
+  await window.play()
+  assert.equal(vm.headline, 'Second')
+})

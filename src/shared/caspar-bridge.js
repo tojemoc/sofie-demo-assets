@@ -1,6 +1,8 @@
 /**
  * Parse CasparCG / Sofie template update payloads.
  */
+import { mergePendingData } from './caspar-bridge-pending.mjs'
+
 export function parseCasparUpdate (data) {
   if (typeof data === 'string') {
     data = data.replace(
@@ -34,9 +36,8 @@ export function parseCasparUpdate (data) {
 export function bindCasparApi (vm, { applyData, ref = 'graphic', onDevAutoplay }) {
   let pendingData = null
 
-  const mergeAndApply = data => {
-    pendingData = { ...pendingData, ...data }
-    applyData(pendingData)
+  const mergePending = data => {
+    pendingData = mergePendingData(pendingData, data)
   }
 
   window.play = async () => {
@@ -64,13 +65,14 @@ export function bindCasparApi (vm, { applyData, ref = 'graphic', onDevAutoplay }
     const data = parseCasparUpdate(raw)
     if (!data) return Promise.resolve()
 
-    mergeAndApply(data)
+    mergePending(data)
 
     const graphic = vm.$refs[ref]
     if (graphic && graphic.update) {
-      return graphic.update(data)
+      return graphic.update(pendingData)
     }
 
+    applyData(pendingData)
     return Promise.resolve()
   }
 
