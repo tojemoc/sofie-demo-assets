@@ -29,13 +29,15 @@ export default {
       return bars
     },
     async play () {
+      const allBars = [this.$refs.barTitle, this.$refs.barSubtitle].filter(Boolean)
       const bars = this.activeBars()
-      killAnimations([this.$refs.barTitle, this.$refs.barSubtitle])
-      gsap.set([this.$refs.barTitle, this.$refs.barSubtitle], { x: OFFSCREEN_X })
+      killAnimations(allBars)
+      gsap.set(allBars, { x: OFFSCREEN_X })
       if (!bars.length) return
 
-      // Park empty bars off-screen; animate active ones in.
+      // Match l3d-tema / l3d-mod: set destination before gsap.from so bars slide in.
       for (let i = 0; i < bars.length; i++) {
+        gsap.set(bars[i], { x: 0 })
         await slideElementIn(bars[i], OFFSCREEN_X, 0.4, i === 0 ? 0.05 : 0.12)
       }
     },
