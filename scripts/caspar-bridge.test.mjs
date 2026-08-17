@@ -29,6 +29,13 @@ test('mergePendingData: headline wins when both aliases appear in one payload', 
   assert.equal(pending.title, undefined)
 })
 
+test('mergePendingData: l3d-headline title+subtitle', () => {
+  const pending = mergePendingData(null, { title: 'Headline', subtitle: 'Subline' })
+  assert.equal(pending.headline, 'Headline')
+  assert.equal(pending.subtitle, 'Subline')
+  assert.equal(pending.title, undefined)
+})
+
 test('bindCasparApi: update with graphic.update skips applyData until play', async () => {
   const order = []
   let playing = false
