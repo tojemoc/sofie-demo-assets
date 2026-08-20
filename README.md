@@ -95,11 +95,13 @@ Per-template dev URLs:
 - http://localhost:8080/headline/index.html
 - http://localhost:8080/headline-fallback/index.html
 - http://localhost:8080/l3d-headline/index.html
+- http://localhost:8080/l3d-predstavovak/index.html
 - http://localhost:8080/l3d-mod/index.html
 - http://localhost:8080/l3d-tema/index.html
 - http://localhost:8080/l3d-syn/index.html
 - http://localhost:8080/l3d-sjv/index.html
 - http://localhost:8080/l3d-sport/index.html
+- http://localhost:8080/l3d-odporucanie/index.html
 - http://localhost:8080/weather/index.html
 - http://localhost:8080/outro/index.html
 - http://localhost:8080/logo-bug/index.html

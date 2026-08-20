@@ -59,12 +59,10 @@ export default {
       return Promise.resolve()
     },
     async update (data) {
-      if (data.name !== undefined || data.meno !== undefined || data.f0 !== undefined) {
-        this.$parent.name = data.name || data.meno || data.f0
-      }
-      if (data.title !== undefined || data.titulok !== undefined || data.f1 !== undefined) {
-        this.$parent.title = data.title || data.titulok || data.f1
-      }
+      const nextName = [data.name, data.Name, data.meno, data.f0].find((v) => v !== undefined)
+      const nextTitle = [data.title, data.Title, data.titulok, data.f1].find((v) => v !== undefined)
+      if (nextName !== undefined) this.$parent.name = nextName
+      if (nextTitle !== undefined) this.$parent.title = nextTitle
       await this.$nextTick()
       this.fitAll()
     }

@@ -18,8 +18,8 @@ export default {
   mounted () {
     bindCasparApi(this, {
       applyData: data => {
-        const nextName = data.name || data.Name || data.meno || data.f0
-        const nextTitle = data.title || data.Title || data.titulok || data.f1
+        const nextName = [data.name, data.Name, data.meno, data.f0].find((v) => v !== undefined)
+        const nextTitle = [data.title, data.Title, data.titulok, data.f1].find((v) => v !== undefined)
         if (nextName !== undefined) this.name = nextName
         if (nextTitle !== undefined) this.title = nextTitle
       },

@@ -26,8 +26,8 @@ export default {
   mounted () {
     bindCasparApi(this, {
       applyData: data => {
-        const nextKicker = data.kicker || data.Kicker || data.rubrika || data.label || data.f0
-        const nextHeadline = data.headline || data.Headline || data.title || data.titulok || data.f1
+        const nextKicker = [data.kicker, data.Kicker, data.rubrika, data.label, data.f0].find((v) => v !== undefined)
+        const nextHeadline = [data.headline, data.Headline, data.title, data.titulok, data.f1].find((v) => v !== undefined)
         if (nextKicker !== undefined) this.kicker = nextKicker
         if (nextHeadline !== undefined) this.headline = nextHeadline
       },

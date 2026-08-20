@@ -22,7 +22,7 @@ export default {
   mounted () {
     bindCasparApi(this, {
       applyData: data => {
-        const next = data.headline || data.Headline || data.title || data.titulok || data.f1
+        const next = [data.headline, data.Headline, data.title, data.titulok, data.f1].find((v) => v !== undefined)
         if (next !== undefined) this.headline = next
       },
       onDevAutoplay: () => {
