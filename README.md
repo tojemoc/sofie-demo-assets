@@ -15,14 +15,19 @@ After `yarn build`, Caspar loads templates as **`gfx/<name>`** — flat HTML fil
 | `headline` | `gfx/headline` | `iluFile`, `source` |
 | `headline-fallback` | `gfx/headline-fallback` | `source` (ILU chrome overlay; video is Caspar MEDIA) |
 | `l3d-headline` | `gfx/l3d-headline` | `title`, `subtitle` (aliases: `headline`, `subline`) |
+| `l3d-predstavovak` | `gfx/l3d-predstavovak` | `name`, `title` (aliases: `meno`/`titulok`) — topic/guest nameplate |
 | `l3d-tema` | `gfx/l3d-tema` | `headline` |
-| `l3d-mod` | `gfx/l3d-mod` | `name` |
+| `l3d-mod` | `gfx/l3d-mod` | `name`, `title` — same shell as `l3d-predstavovak` |
 | `l3d-syn` | `gfx/l3d-syn` | `name`, `role` |
-| `l3d-sjv` | `gfx/l3d-sjv` | `headline` |
-| `l3d-sport` | `gfx/l3d-sport` | `headline`, `source` |
-| `weather` | `gfx/weather` | `cities` (array) |
+| `l3d-sjv` | `gfx/l3d-sjv` | `kicker` (default SJV), `headline` |
+| `l3d-sport` | `gfx/l3d-sport` | `kicker` (default `ŠPORT`), `headline` |
+| `l3d-odporucanie` | `gfx/l3d-odporucanie` | `headline` — recommendation CTA, no kicker |
+| `weather` | `gfx/weather` | `cities` (array); `bypass` (default true) |
 | `outro` | `gfx/outro` | _(none)_ |
 | `logo-bug` | `gfx/logo-bug` | _(none)_ |
+
+Figma HTML provenance and AMCP notes: [docs/L3D_FIGMA_TEMPLATES.md](docs/L3D_FIGMA_TEMPLATES.md).
+
 
 Canonical keys are listed above. Blueprint smoke rundowns may still send
 `headline` / `subline` for `l3d-headline`; the template accepts those as

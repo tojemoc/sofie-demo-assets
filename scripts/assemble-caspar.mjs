@@ -24,10 +24,12 @@ const pages = [
   'headline-fallback',
   'l3d-headline',
   'l3d-mod',
+  'l3d-predstavovak',
   'l3d-tema',
   'l3d-syn',
   'l3d-sjv',
   'l3d-sport',
+  'l3d-odporucanie',
   'weather',
   'outro',
   'logo-bug'
