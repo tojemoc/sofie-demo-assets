@@ -5,16 +5,12 @@
 </template>
 
 <script>
-/**
- * Moderátor L3D — same Figma predstavovak shell (name + title).
- * Prefer piece type `l3d-predstavovak` for new rundowns; `l3d-mod` kept for ingest compat.
- */
 import '../shared/base.css'
 import { bindCasparApi } from '../shared/caspar-bridge'
-import L3dPredstavovakGraphic from '../l3d-predstavovak/components/L3dPredstavovakGraphic.vue'
+import L3dPredstavovakGraphic from './components/L3dPredstavovakGraphic.vue'
 
 export default {
-  name: 'L3dModApp',
+  name: 'L3dPredstavovakApp',
   components: { L3dPredstavovakGraphic },
   data () {
     return { name: '', title: '' }
@@ -28,8 +24,8 @@ export default {
         if (nextTitle !== undefined) this.title = nextTitle
       },
       onDevAutoplay: () => {
-        this.name = 'Michal Kovačič'
-        this.title = 'moderátor'
+        this.name = 'Peter Pellegrini'
+        this.title = 'Prezident Slovenskej republiky'
         this.$nextTick(() => this.$refs.graphic.play())
       }
     })

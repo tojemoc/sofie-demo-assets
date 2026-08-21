@@ -18,6 +18,10 @@ module.exports = {
       entry: 'src/l3d-mod/main.js',
       filename: 'l3d-mod/index.html'
     },
+    'l3d-predstavovak': {
+      entry: 'src/l3d-predstavovak/main.js',
+      filename: 'l3d-predstavovak/index.html'
+    },
     'l3d-tema': {
       entry: 'src/l3d-tema/main.js',
       filename: 'l3d-tema/index.html'
@@ -33,6 +37,10 @@ module.exports = {
     'l3d-sport': {
       entry: 'src/l3d-sport/main.js',
       filename: 'l3d-sport/index.html'
+    },
+    'l3d-odporucanie': {
+      entry: 'src/l3d-odporucanie/main.js',
+      filename: 'l3d-odporucanie/index.html'
     },
     weather: {
       entry: 'src/weather/main.js',
