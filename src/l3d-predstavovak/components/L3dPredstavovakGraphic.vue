@@ -59,8 +59,17 @@ export default {
       return Promise.resolve()
     },
     async update (data) {
-      const nextName = [data.name, data.Name, data.meno, data.f0].find((v) => v !== undefined)
-      const nextTitle = [data.title, data.Title, data.titulok, data.f1].find((v) => v !== undefined)
+      const nextName = [data.meno, data.name, data.Name, data.f0].find((v) => v !== undefined)
+      const nextTitle = [
+        data.pozicia,
+        data.pozícia,
+        data.position,
+        data.title,
+        data.Title,
+        data.titulok,
+        data.funkcia,
+        data.f1
+      ].find((v) => v !== undefined)
       if (nextName !== undefined) this.$parent.name = nextName
       if (nextTitle !== undefined) this.$parent.title = nextTitle
       await this.$nextTick()
@@ -71,11 +80,23 @@ export default {
 </script>
 
 <style>
+@font-face {
+  font-family: "Bauplan";
+  font-style: normal;
+  font-weight: 900;
+  src: local("Bauplan Heavy"), local("Bauplan-Heavy"), local("Bauplan");
+}
+@font-face {
+  font-family: "Diform";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Diform Regular"), local("Diform-Regular"), local("Diform");
+}
 .stage {
   position: relative;
   width: 1920px;
   height: 1080px;
-  opacity: 1;
+  opacity: 0;
   transform: translate3d(0, 0, 0);
 }
 .stage.is-playing {
@@ -165,9 +186,12 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: normal;
   letter-spacing: 0;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
+  font-kerning: normal;
+  font-feature-settings: "kern" 1;
 }
 .name {
   left: 140px;
