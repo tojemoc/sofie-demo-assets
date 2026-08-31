@@ -5,8 +5,9 @@
   --bar-height-tall:  160px;
   --text-primary:     #FFFFFF;
   --text-secondary:   rgba(255, 255, 255, 0.70);
-  --font-bold:        'InterBold', 'Inter', 'Avenir', Helvetica, Arial, sans-serif;
-  --font-regular:     'Inter', 'Avenir', Helvetica, Arial, sans-serif;
+  --font-bold:        'Bauplan', 'Arial Black', Arial, Helvetica, sans-serif;
+  --font-regular:     'Diform', Arial, Helvetica, sans-serif;
+  --font-logo:        '360 Logo', 'Bauplan', 'Arial Black', Arial, sans-serif;
   --pill-bg:          rgba(30, 30, 30, 0.72);
   --pill-radius:      20px;
   --bar-radius:       0px;

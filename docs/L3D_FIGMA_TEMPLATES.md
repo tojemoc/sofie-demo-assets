@@ -14,8 +14,11 @@ Shared Vue shell: `src/shared/figma-l3d/JednouVetouShell.vue`.
 
 ## Fonts
 
-Bauplan Heavy + Diform Regular/Bold — install on the Caspar host for 1:1 Figma match.
-Chromium falls back to Arial Black / Arial when missing.
+Bauplan + Diform ship as WOFF2 under `deploy/template-path/fonts/` (bundled `@font-face`
+in Vue CSS). Install the same families on the Caspar host for `local()` fallback.
+
+Nimaiovica caption fonts live under `docs/fonts/nimaiovica-captions/` (off-air subtitle
+presets, not Caspar HTML templates).
 
 ## AMCP examples
 

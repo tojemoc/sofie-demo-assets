@@ -1,7 +1,7 @@
 <template>
-  <div id="logo-bug" ref="logoBug" aria-label="360° sekúnd">
-    <img :src="logoSrc" alt="" aria-hidden="true" />
-    <span aria-hidden="true">sekúnd</span>
+  <div id="logo-bug" ref="logoBug" role="img" aria-label="360° sekúnd">
+    <img :src="markSrc" alt="" aria-hidden="true" class="logo-bug__mark" />
+    <img :src="wordSrc" alt="" aria-hidden="true" class="logo-bug__word" />
   </div>
 </template>
 
@@ -12,7 +12,8 @@ export default {
   name: 'LogoBugGraphic',
   data () {
     return {
-      logoSrc: '../assets/logo-360.svg'
+      markSrc: '../assets/logo-bug-360-mark.svg',
+      wordSrc: '../assets/logo-bug-sekund.svg'
     }
   },
   methods: {
@@ -34,18 +35,17 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   opacity: 0;
 }
 
-#logo-bug img {
-  width: 180px;
+.logo-bug__mark {
+  width: 120px;
   height: auto;
 }
 
-#logo-bug span {
-  font-family: var(--font-regular);
-  font-size: 28px;
-  color: var(--text-primary);
+.logo-bug__word {
+  width: 139px;
+  height: auto;
 }
 </style>
