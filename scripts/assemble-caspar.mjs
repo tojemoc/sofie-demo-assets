@@ -32,11 +32,9 @@ const pages = [
   'l3d-odporucanie',
   'weather',
   'outro',
-  'logo-bug'
+  'logo-bug',
+  'source'
 ]
-
-/** Standalone HTML (no webpack entry) — copied verbatim into gfx/ */
-const staticPages = ['source']
 
 /** Alias clipNames → same HTML as an existing page */
 const gfxAliases = {
@@ -48,6 +46,8 @@ function findPageHtml (page) {
   if (fs.existsSync(nested)) return nested
   const flat = path.join(vueDist, `${page}.html`)
   if (fs.existsSync(flat)) return flat
+  const staticHtml = path.join(root, 'public', 'static', `${page}.html`)
+  if (fs.existsSync(staticHtml)) return staticHtml
   return null
 }
 
@@ -131,18 +131,6 @@ function main () {
     const gfxDir = path.join(templateRoot, 'gfx')
     fs.mkdirSync(gfxDir, { recursive: true })
 
-    const html = fs.readFileSync(srcHtml, 'utf8')
-    fs.writeFileSync(path.join(gfxDir, `${page}.html`), rewriteAssetPaths(html))
-  }
-
-  for (const page of staticPages) {
-    const srcHtml = path.join(root, 'public', 'static', `${page}.html`)
-    if (!fs.existsSync(srcHtml)) {
-      console.warn(`skip: static ${page} HTML not found`)
-      continue
-    }
-    const gfxDir = path.join(templateRoot, 'gfx')
-    fs.mkdirSync(gfxDir, { recursive: true })
     const html = fs.readFileSync(srcHtml, 'utf8')
     fs.writeFileSync(path.join(gfxDir, `${page}.html`), rewriteAssetPaths(html))
   }

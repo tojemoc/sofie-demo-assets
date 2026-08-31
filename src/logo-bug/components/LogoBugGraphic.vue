@@ -1,5 +1,5 @@
 <template>
-  <div id="logo-bug" ref="logoBug" aria-label="360° sekúnd">
+  <div id="logo-bug" ref="logoBug" role="img" aria-label="360° sekúnd">
     <img :src="markSrc" alt="" aria-hidden="true" class="logo-bug__mark" />
     <img :src="wordSrc" alt="" aria-hidden="true" class="logo-bug__word" />
   </div>
