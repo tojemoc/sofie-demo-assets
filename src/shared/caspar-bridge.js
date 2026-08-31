@@ -3,19 +3,58 @@
  */
 import { mergePendingData } from './caspar-bridge-pending.mjs'
 
+function decodeXmlEntities (value) {
+  return String(value)
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+}
+
+function parseXmlComponentData (value) {
+  if (!/<componentData[\s>]/i.test(value)) return null
+
+  const result = {}
+  const componentPattern = /<componentData\b([^>]*)>([\s\S]*?)<\/componentData>/gi
+  let match
+
+  while ((match = componentPattern.exec(value)) !== null) {
+    const [, attrs, content] = match
+    const idMatch = attrs.match(/\bid=(["'])(.*?)\1/i)
+    if (!idMatch) continue
+
+    const dataTagMatch = content.match(/<data\b([^>]*)\/?>/i)
+    const dataContentMatch = content.match(/<data\b[^>]*>([\s\S]*?)<\/data>/i)
+    if (!dataTagMatch && !dataContentMatch) continue
+
+    const dataAttrs = dataTagMatch ? dataTagMatch[1] : ''
+    const valueMatch = dataAttrs.match(/\bvalue=(["'])(.*?)\1/i)
+    const rawComponentValue = valueMatch
+      ? valueMatch[2]
+      : (dataContentMatch ? dataContentMatch[1] : '')
+
+    result[decodeXmlEntities(idMatch[2])] = decodeXmlEntities(rawComponentValue)
+  }
+
+  return Object.keys(result).length ? result : null
+}
+
 export function parseCasparUpdate (data) {
   if (typeof data === 'string') {
-    data = data.replace(
+    const raw = data.trim()
+    const stripped = raw.replace(
       /^(<templateData>|<componentData>|<data>)|(<\/templateData>|<\/componentData>|<\/data>)$/gi,
       ''
-    )
+    ).trim()
+
     try {
-      data = JSON.parse(decodeURIComponent(data))
+      data = JSON.parse(decodeURIComponent(stripped))
     } catch (e) {
       try {
-        data = JSON.parse(data)
+        data = JSON.parse(stripped)
       } catch (e2) {
-        return null
+        data = parseXmlComponentData(raw)
       }
     }
   }
@@ -33,11 +72,11 @@ export function parseCasparUpdate (data) {
  * Caspar may invoke PLAY before UPDATE (or only send data once on UPDATE after ADD).
  * Cache the last payload and re-apply it on play() after Vue has flushed bindings.
  */
-export function bindCasparApi (vm, { applyData, ref = 'graphic', onDevAutoplay }) {
+export function bindCasparApi (vm, { applyData, ref = 'graphic', onDevAutoplay, titleAlias = true }) {
   let pendingData = null
 
   const mergePending = data => {
-    pendingData = mergePendingData(pendingData, data)
+    pendingData = mergePendingData(pendingData, data, { titleAlias })
   }
 
   window.play = async () => {

@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { mergePendingData } from '../src/shared/caspar-bridge-pending.mjs'
-import { bindCasparApi } from '../src/shared/caspar-bridge.js'
+import { bindCasparApi, parseCasparUpdate } from '../src/shared/caspar-bridge.js'
 
 test('mergePendingData: title-only maps to headline', () => {
   const pending = mergePendingData(null, { title: 'Téma' })
@@ -21,6 +21,13 @@ test('mergePendingData: preserves unrelated fields', () => {
   pending = mergePendingData(pending, { title: 'B' })
   assert.equal(pending.headline, 'B')
   assert.equal(pending.foo, 'bar')
+})
+
+test('mergePendingData: can preserve title for nameplate templates', () => {
+  const pending = mergePendingData(null, { meno: 'Meno', title: 'Pozicia' }, { titleAlias: false })
+  assert.equal(pending.meno, 'Meno')
+  assert.equal(pending.title, 'Pozicia')
+  assert.equal(pending.headline, undefined)
 })
 
 test('mergePendingData: headline wins when both aliases appear in one payload', () => {
@@ -132,4 +139,36 @@ test('bindCasparApi: headline then title then play replays canonical headline', 
 
   await window.play()
   assert.equal(vm.headline, 'Second')
+})
+
+test('parseCasparUpdate: parses CasparCG XML componentData', () => {
+  const payload = '<templateData><componentData id="meno"><data value="Jana Novakova" /></componentData><componentData id="pozicia"><data value="Ministerka" /></componentData></templateData>'
+  assert.deepEqual(parseCasparUpdate(payload), {
+    meno: 'Jana Novakova',
+    pozicia: 'Ministerka'
+  })
+})
+
+test('bindCasparApi: titleAlias false keeps title as position', async () => {
+  const vm = {
+    name: '',
+    title: '',
+    $refs: {},
+    $nextTick: () => Promise.resolve()
+  }
+
+  global.window = {}
+  bindCasparApi(vm, {
+    titleAlias: false,
+    applyData: data => {
+      if (data.meno !== undefined) vm.name = data.meno
+      if (data.title !== undefined) vm.title = data.title
+    }
+  })
+
+  await window.update({ meno: 'Jana Novakova', title: 'Hovorkyna' })
+  await window.play()
+
+  assert.equal(vm.name, 'Jana Novakova')
+  assert.equal(vm.title, 'Hovorkyna')
 })
