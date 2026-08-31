@@ -23,6 +23,7 @@ export default {
           data.pozicia,
           data.pozícia,
           data.position,
+          data.headline,
           data.title,
           data.Title,
           data.titulok,
