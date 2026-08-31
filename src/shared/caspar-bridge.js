@@ -3,8 +3,28 @@
  */
 import { mergePendingData } from './caspar-bridge-pending.mjs'
 
+function decodeCodePoint (value, radix) {
+  const codePoint = Number.parseInt(value, radix)
+  if (!Number.isFinite(codePoint) || codePoint < 0 || codePoint > 0x10FFFF) {
+    return null
+  }
+  try {
+    return String.fromCodePoint(codePoint)
+  } catch (e) {
+    return null
+  }
+}
+
+function orEntityFallback (decoded, fallback) {
+  return decoded != null ? decoded : fallback
+}
+
 function decodeXmlEntities (value) {
   return String(value)
+    .replace(/&amp;#x([0-9a-fA-F]+);/g, (_, hex) => orEntityFallback(decodeCodePoint(hex, 16), `&#x${hex};`))
+    .replace(/&amp;#(\d+);/g, (_, dec) => orEntityFallback(decodeCodePoint(dec, 10), `&#${dec};`))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => orEntityFallback(decodeCodePoint(hex, 16), `&#x${hex};`))
+    .replace(/&#(\d+);/g, (_, dec) => orEntityFallback(decodeCodePoint(dec, 10), `&#${dec};`))
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")
     .replace(/&lt;/g, '<')

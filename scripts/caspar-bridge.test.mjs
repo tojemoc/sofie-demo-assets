@@ -149,6 +149,67 @@ test('parseCasparUpdate: parses CasparCG XML componentData', () => {
   })
 })
 
+test('parseCasparUpdate: decodes decimal and hexadecimal XML character references', () => {
+  const payload = '<templateData><componentData id="&#237;cia"><data value="&#xED;ta" /></componentData></templateData>'
+  assert.deepEqual(parseCasparUpdate(payload), {
+    ícia: 'íta'
+  })
+})
+
+test('parseCasparUpdate: decodes double-encoded numeric XML character references', () => {
+  const payload = '<templateData><componentData id="&amp;#237;cia"><data value="&amp;#xED;ta" /></componentData></templateData>'
+  assert.deepEqual(parseCasparUpdate(payload), {
+    ícia: 'íta'
+  })
+})
+
+test('bindCasparApi: predstavovak headline-only update with titleAlias false', async () => {
+  const resolvePredstavovakTitle = data => [
+    data.pozicia,
+    data.pozícia,
+    data.position,
+    data.headline,
+    data.title,
+    data.Title,
+    data.titulok,
+    data.funkcia,
+    data.f1
+  ].find((v) => v !== undefined)
+
+  const graphic = {
+    play: async () => {},
+    stop: async () => {},
+    async update (data) {
+      const nextTitle = resolvePredstavovakTitle(data)
+      if (nextTitle !== undefined) vm.title = nextTitle
+      await vm.$nextTick()
+    }
+  }
+
+  const vm = {
+    name: 'Peter Pellegrini',
+    title: 'Prezident Slovenskej republiky',
+    $refs: { graphic },
+    $nextTick: () => Promise.resolve()
+  }
+
+  global.window = {}
+  bindCasparApi(vm, {
+    titleAlias: false,
+    applyData: data => {
+      const nextTitle = resolvePredstavovakTitle(data)
+      if (nextTitle !== undefined) vm.title = nextTitle
+    }
+  })
+
+  await window.update({ headline: 'Ministerka financií' })
+  assert.equal(vm.title, 'Ministerka financií', 'headline applies during graphic.update')
+
+  vm.title = 'Prezident Slovenskej republiky'
+  await window.play()
+  assert.equal(vm.title, 'Ministerka financií', 'play replays cached headline payload')
+})
+
 test('bindCasparApi: titleAlias false keeps title as position', async () => {
   const vm = {
     name: '',
