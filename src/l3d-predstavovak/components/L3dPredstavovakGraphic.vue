@@ -81,18 +81,6 @@ export default {
 </script>
 
 <style>
-@font-face {
-  font-family: "Bauplan";
-  font-style: normal;
-  font-weight: 900;
-  src: local("Bauplan Heavy"), local("Bauplan-Heavy"), local("Bauplan");
-}
-@font-face {
-  font-family: "Diform";
-  font-style: normal;
-  font-weight: 400;
-  src: local("Diform Regular"), local("Diform-Regular"), local("Diform");
-}
 .stage {
   position: relative;
   width: 1920px;

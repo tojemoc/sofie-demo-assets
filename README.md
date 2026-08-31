@@ -25,16 +25,19 @@ After `yarn build`, Caspar loads templates as **`gfx/<name>`** — flat HTML fil
 | `weather` | `gfx/weather` | `cities` (array); `bypass` (default true) |
 | `outro` | `gfx/outro` | _(none)_ |
 | `logo-bug` | `gfx/logo-bug` | _(none)_ |
+| `logo-bug-kubo` | `gfx/logo-bug-kubo` | _(none)_ — alias of `logo-bug` |
+| `source` | `gfx/source` | `source` — standalone PGM source pill |
 
 Figma HTML provenance and AMCP notes: [docs/L3D_FIGMA_TEMPLATES.md](docs/L3D_FIGMA_TEMPLATES.md).
 
+Blueprints / megarepo wiring: [docs/BLUEPRINTS_HANDOFF.md](docs/BLUEPRINTS_HANDOFF.md).
 
 Canonical keys are listed above. Blueprint smoke rundowns may still send
 `headline` / `subline` for `l3d-headline`; the template accepts those as
 backward-compatible aliases until manifests are updated.
 
-Legacy v1 stubs (`gfx/l3d`, `gfx/mod-l3d`, `gfx/head-spravy`, …) remain under
-`public/` and `src/` but are **not** part of the v2 deploy bundle.
+Legacy v1 stubs (`gfx/l3d`, `gfx/mod-l3d`, `gfx/head-spravy`, `gfx/ticker`, `gfx/strap`, `gfx/wipe`)
+were **removed** from this repo — update blueprints and smoke rundowns to v2 clipNames only.
 
 ## Build & deploy
 
@@ -131,7 +134,19 @@ Preview URLs follow the same paths as dev URLs, with query parameters for gfx fi
 Folder names must match the `pages` list in `vue.config.js` and
 `scripts/assemble-caspar.mjs`.
 
-## Media & ILU paths
+## Fonts
+
+Brand fonts ship in the deploy bundle under `template-path/fonts/`:
+
+| Family | Files | Used by |
+|--------|-------|---------|
+| Bauplan | WOFF2 (Heavy, Regular + italics) | L3D kickers, name bars |
+| Diform | WOFF2 (Bold, Regular + italics) | L3D subtitles, source pill |
+| 360 Logo | OTF | Logo bug mark |
+| Nimaiovica | TTF + caption presets | Off-line captions — see `docs/fonts/nimaiovica-captions/` |
+
+Templates embed `@font-face` with bundled WOFF2/OTF and fall back to `local()` when the
+fonts are also installed on the Caspar host.
 
 Production `.mp4` clips are **not** in git. See [docs/MEDIA_LAYOUT.md](docs/MEDIA_LAYOUT.md)
 for the flat `clips/` / `loops/` / `wipes/` convention, Package Manager ingest mirror,
