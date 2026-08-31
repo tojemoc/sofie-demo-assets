@@ -10,17 +10,21 @@ function decodeCodePoint (value, radix) {
   }
   try {
     return String.fromCodePoint(codePoint)
-  } catch {
+  } catch (e) {
     return null
   }
 }
 
+function orEntityFallback (decoded, fallback) {
+  return decoded != null ? decoded : fallback
+}
+
 function decodeXmlEntities (value) {
   return String(value)
-    .replace(/&amp;#x([0-9a-fA-F]+);/g, (_, hex) => decodeCodePoint(hex, 16) ?? `&#x${hex};`)
-    .replace(/&amp;#(\d+);/g, (_, dec) => decodeCodePoint(dec, 10) ?? `&#${dec};`)
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => decodeCodePoint(hex, 16) ?? `&#x${hex};`)
-    .replace(/&#(\d+);/g, (_, dec) => decodeCodePoint(dec, 10) ?? `&#${dec};`)
+    .replace(/&amp;#x([0-9a-fA-F]+);/g, (_, hex) => orEntityFallback(decodeCodePoint(hex, 16), `&#x${hex};`))
+    .replace(/&amp;#(\d+);/g, (_, dec) => orEntityFallback(decodeCodePoint(dec, 10), `&#${dec};`))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => orEntityFallback(decodeCodePoint(hex, 16), `&#x${hex};`))
+    .replace(/&#(\d+);/g, (_, dec) => orEntityFallback(decodeCodePoint(dec, 10), `&#${dec};`))
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")
     .replace(/&lt;/g, '<')
