@@ -1,13 +1,8 @@
 name: Node CI
 
+# CI disabled — no automated build/lint/release until the webpack build pipeline is needed again.
+# Re-enable push/pull_request triggers when restoring the build system.
 on:
-  push:
-    branches:
-      - '**'
-    tags:
-      - 'v*'
-      - '[0-9]*'
-  pull_request:
   workflow_dispatch:
     inputs:
       tag:
