@@ -1,0 +1,362 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920, height=1080, initial-scale=1">
+  <title>Spravy 360 - Pocasie</title>
+  <style>
+    :root {
+      --stage-width: 1920px;
+      --stage-height: 1080px;
+      --weather-blue: #2c7dff;
+      --weather-panel: rgba(95, 95, 95, .6);
+      --card-radius: 20px;
+    }
+
+    html,
+    body {
+      width: var(--stage-width);
+      height: var(--stage-height);
+      margin: 0;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body.is-browser-preview {
+      background: #1c1c1c;
+    }
+
+    @font-face {
+      font-family: "Bauplan";
+      font-style: normal;
+      font-weight: 900;
+      src: local("Bauplan Heavy"), local("Bauplan-Heavy"), local("Bauplan");
+    }
+
+    @font-face {
+      font-family: "Diform";
+      font-style: normal;
+      font-weight: 700;
+      src: local("Diform Bold"), local("Diform-Bold"), local("Diform");
+    }
+
+    .stage {
+      position: relative;
+      width: var(--stage-width);
+      height: var(--stage-height);
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .weather-map {
+      position: absolute;
+      inset: 0;
+    }
+
+    .weather-card {
+      position: absolute;
+      display: flex;
+      width: 346px;
+      height: 130px;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0);
+      transform-origin: center center;
+      will-change: opacity, transform;
+    }
+
+    .weather-card.is-visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(.8);
+    }
+
+    .weather-card.is-grown {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .weather-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 130px;
+      height: 130px;
+      flex: 0 0 130px;
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      background: var(--weather-blue);
+    }
+
+    .weather-icon img {
+      display: block;
+      width: 82px;
+      height: 82px;
+      object-fit: contain;
+    }
+
+    .weather-text {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 216px;
+      height: 130px;
+      padding: 0 14px 0 30px;
+      box-sizing: border-box;
+      border-radius: var(--card-radius);
+      background: var(--weather-panel);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .temp,
+    .region-name {
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0;
+      text-rendering: geometricPrecision;
+      -webkit-font-smoothing: antialiased;
+      font-kerning: normal;
+      font-feature-settings: "kern" 1;
+    }
+
+    .temp {
+      height: 58px;
+      font-family: "Bauplan", "Arial Black", Arial, Helvetica, sans-serif;
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 58px;
+    }
+
+    .region-name {
+      margin-top: 1px;
+      font-family: "Diform", Arial, Helvetica, sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 29px;
+      text-transform: uppercase;
+    }
+
+    .weather-card[data-region="BA"] { left: 430px; top: 800px; }
+    .weather-card[data-region="TT"] { left: 490px; top: 630px; }
+    .weather-card[data-region="TN"] { left: 710px; top: 450px; }
+    .weather-card[data-region="NR"] { left: 880px; top: 720px; }
+    .weather-card[data-region="ZA"] { left: 900px; top: 300px; }
+    .weather-card[data-region="BB"] { left: 1085px; top: 550px; }
+    .weather-card[data-region="PO"] { left: 1480px; top: 380px; }
+    .weather-card[data-region="KE"] { left: 1580px; top: 590px; }
+  </style>
+</head>
+<body>
+  <main id="template" class="stage">
+    <div id="weather-map" class="weather-map"></div>
+  </main>
+
+  <script>
+    (() => {
+      const REGION_CODES = ["BA", "TT", "NR", "TN", "ZA", "BB", "KE", "PO"];
+      const DEFAULT_IMAGE = "../icons/sunny.svg";
+      const DEFAULT_REGIONS = {
+        BA: { name: "BRATISLAVA", temp: "4", delay: 200 },
+        TT: { name: "TRNAVA", temp: "3", delay: 400 },
+        NR: { name: "NITRA", temp: "2", delay: 600 },
+        TN: { name: "TRENČÍN", temp: "1", delay: 800 },
+        ZA: { name: "ŽILINA", temp: "-1", delay: 1000 },
+        BB: { name: "B. BYSTRICA", temp: "0", delay: 1200 },
+        KE: { name: "KOŠICE", temp: "2", delay: 1400 },
+        PO: { name: "PREŠOV", temp: "1", delay: 1600 }
+      };
+
+      const templateElement = document.getElementById("template");
+      const weatherMap = document.getElementById("weather-map");
+      const cards = {};
+      const timers = [];
+      let growDuration = 600;
+
+      function createCard(region) {
+        const card = document.createElement("div");
+        card.className = "weather-card";
+        card.dataset.region = region;
+        card.innerHTML = [
+          '<div class="weather-icon"><img alt=""></div>',
+          '<div class="weather-text">',
+          '  <p class="temp"></p>',
+          '  <p class="region-name"></p>',
+          '</div>'
+        ].join("");
+        weatherMap.appendChild(card);
+        cards[region] = {
+          root: card,
+          image: card.querySelector("img"),
+          temp: card.querySelector(".temp"),
+          name: card.querySelector(".region-name")
+        };
+      }
+
+      function parseTemplateData(rawData) {
+        if (!rawData) return {};
+        if (typeof rawData === "object") return rawData;
+
+        const data = String(rawData).trim();
+        if (!data) return {};
+
+        try {
+          return JSON.parse(data);
+        } catch (error) {
+          // CasparCG Client commonly sends templateData XML.
+        }
+
+        const result = {};
+        try {
+          const xml = new DOMParser().parseFromString(data, "text/xml");
+          xml.querySelectorAll("componentData").forEach((component) => {
+            const id = component.getAttribute("id");
+            const valueNode = component.querySelector("data");
+            if (!id || !valueNode) return;
+            result[id] = valueNode.getAttribute("value") || valueNode.textContent || "";
+          });
+        } catch (error) {
+          console.warn("Unable to parse template data", error);
+        }
+        return result;
+      }
+
+      function firstDefined(data, keys) {
+        for (let i = 0; i < keys.length; i++) {
+          if (data[keys[i]] !== undefined) return data[keys[i]];
+        }
+        return undefined;
+      }
+
+      function toMilliseconds(value, fallback) {
+        if (value === undefined || value === null || value === "") return fallback;
+        const parsed = Number(String(value).replace(",", "."));
+        if (!Number.isFinite(parsed)) return fallback;
+        return parsed <= 20 ? parsed * 1000 : parsed;
+      }
+
+      function imageSource(value) {
+        if (value === undefined || value === null || String(value).trim() === "") return DEFAULT_IMAGE;
+        const src = String(value).trim();
+        if (/^(https?:|data:|blob:|\/|\.\/|\.\.\/)/i.test(src)) return src;
+        if (/\.(png|gif|jpe?g|webp|svg)$/i.test(src)) return src;
+        return "../icons/" + src + ".svg";
+      }
+
+      function formatTemp(value) {
+        const text = String(value === undefined || value === null || value === "" ? "0" : value).trim();
+        return /°/.test(text) ? text : text + "°C";
+      }
+
+      function fitText(element, maxSize, minSize) {
+        let size = maxSize;
+        element.style.fontSize = size + "px";
+        while (element.scrollWidth > element.clientWidth && size > minSize) {
+          size -= 1;
+          element.style.fontSize = size + "px";
+        }
+      }
+
+      function resetAnimation() {
+        while (timers.length) window.clearTimeout(timers.pop());
+        REGION_CODES.forEach((region) => {
+          const card = cards[region].root;
+          card.classList.remove("is-visible", "is-grown");
+          card.style.transition = "none";
+        });
+        void templateElement.offsetWidth;
+      }
+
+      function applyData(rawData) {
+        const data = parseTemplateData(rawData);
+        growDuration = toMilliseconds(firstDefined(data, [
+          "grow_duration",
+          "Grow_duration",
+          "animation_duration",
+          "Animation_duration",
+          "anim_duration",
+          "duration"
+        ]), growDuration);
+
+        REGION_CODES.forEach((region) => {
+          const defaults = DEFAULT_REGIONS[region];
+          const card = cards[region];
+          const nextImage = firstDefined(data, [region + "_img", region + "_image"]);
+          const nextTemp = firstDefined(data, [region + "_temp", region + "_temperature"]);
+          const nextName = firstDefined(data, [region + "_name", region + "_region"]);
+          const nextDelay = firstDefined(data, [region + "_delay", region + "_time", region + "_start"]);
+
+          card.image.src = imageSource(nextImage);
+          card.image.alt = (nextName || defaults.name) + " pocasie";
+          card.temp.textContent = formatTemp(nextTemp !== undefined ? nextTemp : defaults.temp);
+          card.name.textContent = String(nextName !== undefined ? nextName : defaults.name).toUpperCase();
+          card.root.dataset.delay = String(toMilliseconds(nextDelay, defaults.delay));
+
+          fitText(card.temp, 64, 42);
+          fitText(card.name, 24, 15);
+        });
+      }
+
+      function play() {
+        resetAnimation();
+        REGION_CODES.forEach((region) => {
+          const card = cards[region].root;
+          const delay = toMilliseconds(card.dataset.delay, DEFAULT_REGIONS[region].delay);
+          timers.push(window.setTimeout(() => {
+            card.style.transition = "none";
+            card.classList.add("is-visible");
+            void card.offsetWidth;
+            card.style.transition = "transform " + growDuration + "ms cubic-bezier(.16, 1, .3, 1)";
+            window.requestAnimationFrame(() => card.classList.add("is-grown"));
+          }, delay));
+        });
+      }
+
+      function stop() {
+        while (timers.length) window.clearTimeout(timers.pop());
+        REGION_CODES.forEach((region) => {
+          const card = cards[region].root;
+          card.style.transition = "opacity 180ms linear, transform 280ms cubic-bezier(.7, 0, .84, 0)";
+          card.classList.remove("is-grown");
+          card.classList.remove("is-visible");
+        });
+      }
+
+      function update(rawData) {
+        applyData(rawData);
+      }
+
+      REGION_CODES.forEach(createCard);
+
+      window.play = play;
+      window.stop = stop;
+      window.update = update;
+      window.applyData = applyData;
+
+      function isBrowserPreview() {
+        const params = new URLSearchParams(window.location.search);
+        const host = window.location.hostname;
+        return params.has("preview") ||
+          window.location.protocol === "file:" ||
+          host === "localhost" ||
+          host === "127.0.0.1" ||
+          host === "";
+      }
+
+      applyData({});
+
+      if (isBrowserPreview()) {
+        document.body.classList.add("is-browser-preview");
+        window.setTimeout(play, 250);
+      }
+    })();
+  </script>
+</body>
+</html>
