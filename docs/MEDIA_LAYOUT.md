@@ -27,7 +27,7 @@ sofie-demo-media/
   clips/<file>.mp4    ← VT / ILU / SYN / headline masters
   loops/              ← shared scaffold from deploy (e.g. 360_loop)
   wipes/              ← alpha wipes + intro overlays
-  assets/             ← stills / misc
+  assets/             ← stills / misc (e.g. `bg_pocasie.mov` under weather blind-map)
 ```
 
 No per-rundown nesting (`spravy/<id>/…` is retired). Shared folders come from
@@ -71,6 +71,18 @@ c:/casparcg/sofie-demo-media/clips/headline1.mp4
 Caspar `PLAY` commands omit the extension (`PLAY 1-10 clips/headline1`), but
 the file **on disk must include `.mp4`**. Blueprints and templates always use the
 full media-path-relative path including extension in JSON payloads.
+
+## Weather fullscreen (`gfx/pocasie`)
+
+Blueprints blind-map a looping background video and overlay the HTML template:
+
+```text
+assets/bg_pocasie.mov   ← map / loop under the city cards (Caspar PLAY `assets/bg_pocasie`)
+```
+
+Place the file at `sofie-demo-media/assets/bg_pocasie.mov` (or `.mp4`). The HTML
+template (`gfx/pocasie.html`) animates city cards on top; Caspar calls `update()` then
+`play()` when the template is added.
 
 ## ILU headline video (`gfx/headline` / `gfx/headline-fallback`)
 
