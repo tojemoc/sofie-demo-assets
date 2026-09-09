@@ -342,13 +342,13 @@
       window.applyData = applyData;
 
       function isBrowserPreview() {
-        const params = new URLSearchParams(window.location.search);
-        const host = window.location.hostname;
-        return params.has("preview") ||
-          window.location.protocol === "file:" ||
-          host === "localhost" ||
-          host === "127.0.0.1" ||
-          host === "";
+        // Only the static preview server (localhost:8080) or ?preview= should get
+        // the dark checkerboard-style preview bg. CasparCEF loads templates via
+        // file:// (hostname "" / protocol file:) — treating those as preview painted
+        // opaque #1c1c1c over Full-look bg_loop on PGM.
+        const params = new URLSearchParams(window.location.search)
+        const host = window.location.host
+        return params.has("preview") || host === "localhost:8080"
       }
 
       applyData({});
