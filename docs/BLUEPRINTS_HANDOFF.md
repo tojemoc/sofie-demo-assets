@@ -105,3 +105,11 @@ CG 1 ADD 121 "gfx/headline-fallback" 1 "{\"source\":\"TASR\"}"
 - Refresh `docs/integration/SPRAVY-V2-INTEGRATION.md` repo snapshot + template table.
 - Move `spravy_360_*` Figma reference HTML only under `docs/figma-sources/` (not repo root).
 - Link to demo-assets `docs/BLUEPRINTS_HANDOFF.md` (this file) from integration handoffs table.
+
+---
+
+## Related blueprints FILL / route handoffs
+
+- DoubleBox Cam1 raise (~30px) + LED `bg_loop` 120% right zoom + `route://3`↔`route://4`
+  look-kind notes: [`docs/handoffs/blueprints-cam1-led-bg-zoom.md`](./handoffs/blueprints-cam1-led-bg-zoom.md)
+  (patch for `sofie-demo-blueprints`; this assets agent cannot push that repo).

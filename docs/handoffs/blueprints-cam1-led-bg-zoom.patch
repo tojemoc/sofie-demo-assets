@@ -1,0 +1,161 @@
+From f03d8eb748c37398dbf399b2034d37ce5ae0e6dd Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Thu, 10 Sep 2026 07:18:40 +0000
+Subject: [PATCH] fix: raise DoubleBox Cam1 FILL and right-bias LED bg_loop
+ zoom
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Move Cam1 MIXER FILL y from 0.1 to 0.072 (~30px @1080p) so the UVC
+meets the db_loop right cutout top. Bump LED tema zoom to 120% with
+right-edge pan (FILL -0.2 -0.1 1.2 1.2) for tema/SJV/ŠPORT/Počasie.
+---
+ .../src/__tests__/casparV2Graphics.spec.ts    |  2 +-
+ .../src/__tests__/ledBgLoopZoom.spec.ts       | 26 ++++++++++++++++++-
+ .../src/__tests__/pgmCamera.spec.ts           |  2 +-
+ .../base/showstyle/helpers/ledBgLoopZoom.ts   |  2 +-
+ .../applyConfig/mappings/casparcgLayers.ts    | 19 +++++++-------
+ packages/docs/docs/pgm_route_contract.md      |  2 +-
+ 6 files changed, 39 insertions(+), 14 deletions(-)
+
+diff --git a/packages/blueprints/src/__tests__/casparV2Graphics.spec.ts b/packages/blueprints/src/__tests__/casparV2Graphics.spec.ts
+index 35fbd42..37b8020 100644
+--- a/packages/blueprints/src/__tests__/casparV2Graphics.spec.ts
++++ b/packages/blueprints/src/__tests__/casparV2Graphics.spec.ts
+@@ -387,7 +387,7 @@ describe('casparV2Graphics', () => {
+ 			file: 'dshow://video=OBS Virtual Camera',
+ 			noStarttime: true,
+ 			mixer: {
+-				fill: { x: 0.2, y: 0.1, xScale: 0.8, yScale: 0.8 },
++				fill: { x: 0.2, y: 0.072, xScale: 0.8, yScale: 0.8 },
+ 			},
+ 		})
+ 	})
+diff --git a/packages/blueprints/src/__tests__/ledBgLoopZoom.spec.ts b/packages/blueprints/src/__tests__/ledBgLoopZoom.spec.ts
+index 958a759..12a0545 100644
+--- a/packages/blueprints/src/__tests__/ledBgLoopZoom.spec.ts
++++ b/packages/blueprints/src/__tests__/ledBgLoopZoom.spec.ts
+@@ -1,5 +1,7 @@
+ import { describe, expect, it } from 'vitest'
+-import { segmentUsesLedBgLoopZoom } from '../base/showstyle/helpers/ledBgLoopZoom.js'
++import { segmentUsesLedBgLoopZoom, createLedBgLoopZoomPiece } from '../base/showstyle/helpers/ledBgLoopZoom.js'
++import { LED_BG_LOOP_TEMA_FILL } from '../base/studio/applyConfig/mappings/casparcgLayers.js'
++import { hybridCasparConfig } from './helpers/smokeRundownIngest.js'
+ 
+ describe('segmentUsesLedBgLoopZoom', () => {
+ 	it('matches smoke segment ids and section display-name tokens', () => {
+@@ -23,3 +25,25 @@ describe('segmentUsesLedBgLoopZoom', () => {
+ 		expect(segmentUsesLedBgLoopZoom({ name: 'HEADLINES' })).toBe(false)
+ 	})
+ })
++
++describe('LED_BG_LOOP_TEMA_FILL', () => {
++	it('is 120% zoom pinned to the right edge', () => {
++		expect(LED_BG_LOOP_TEMA_FILL).toEqual({
++			x: -0.2,
++			y: -0.1,
++			xScale: 1.2,
++			yScale: 1.2,
++		})
++	})
++
++	it('createLedBgLoopZoomPiece applies that FILL on ClipPlayer1', () => {
++		const piece = createLedBgLoopZoomPiece(hybridCasparConfig, 'part-tema-1')
++		const media = piece.content.timelineObjects?.[0]
++		expect(media?.content).toMatchObject({
++			file: 'loops/bg_loop',
++			mixer: {
++				fill: { ...LED_BG_LOOP_TEMA_FILL },
++			},
++		})
++	})
++})
+diff --git a/packages/blueprints/src/__tests__/pgmCamera.spec.ts b/packages/blueprints/src/__tests__/pgmCamera.spec.ts
+index 294a0c9..1723c4f 100644
+--- a/packages/blueprints/src/__tests__/pgmCamera.spec.ts
++++ b/packages/blueprints/src/__tests__/pgmCamera.spec.ts
+@@ -58,7 +58,7 @@ describe('pgmCamera helpers', () => {
+ 			file: 'dshow://video=OBS Virtual Camera',
+ 			noStarttime: true,
+ 			mixer: {
+-				fill: { x: 0.2, y: 0.1, xScale: 0.8, yScale: 0.8 },
++				fill: { x: 0.2, y: 0.072, xScale: 0.8, yScale: 0.8 },
+ 			},
+ 		})
+ 	})
+diff --git a/packages/blueprints/src/base/showstyle/helpers/ledBgLoopZoom.ts b/packages/blueprints/src/base/showstyle/helpers/ledBgLoopZoom.ts
+index 39ac0ee..19e64d6 100644
+--- a/packages/blueprints/src/base/showstyle/helpers/ledBgLoopZoom.ts
++++ b/packages/blueprints/src/base/showstyle/helpers/ledBgLoopZoom.ts
+@@ -23,7 +23,7 @@ export function segmentUsesLedBgLoopZoom(segment: { name?: string; externalId?:
+ }
+ 
+ /**
+- * Re-assert LED baseline `loops/bg_loop` with tema FILL+CROP on ClipPlayer1.
++ * Re-assert LED baseline `loops/bg_loop` with 120% right-biased FILL+CROP on ClipPlayer1.
+  * WithinPart — baseline fullscreen returns when the part ends (tip/outro/avízo).
+  */
+ export function createLedBgLoopZoomPiece(config: StudioConfig, partExternalId: string): IBlueprintPiece {
+diff --git a/packages/blueprints/src/base/studio/applyConfig/mappings/casparcgLayers.ts b/packages/blueprints/src/base/studio/applyConfig/mappings/casparcgLayers.ts
+index fd1d656..69363d6 100644
+--- a/packages/blueprints/src/base/studio/applyConfig/mappings/casparcgLayers.ts
++++ b/packages/blueprints/src/base/studio/applyConfig/mappings/casparcgLayers.ts
+@@ -64,10 +64,11 @@ export const DEBUG_CHANNEL_LABEL_LAYER = PgmChannelLayers.DebugLabel
+  * DoubleBox CAM under the frame: ~80% of the frame, right edge stuck to the screen
+  * right edge. ILU (higher layer) covers the left overhang — no CAM crop required.
+  * The alpha `db_loop`/`dp_loop` cutouts reveal the right window; left is ILU.
++ * y is ~30px above the previous 0.1 so CAM meets the right cutout top (1080p).
+  */
+ export const PGM_DOUBLEBOX_CAMERA_FILL = {
+ 	x: 0.2,
+-	y: 0.1,
++	y: 0.072,
+ 	xScale: 0.8,
+ 	yScale: 0.8,
+ } as const
+@@ -89,14 +90,14 @@ export const PGM_FULLSCREEN_CAMERA_FILL = {
+ } as const
+ 
+ /**
+- * LED `bg_loop` during tema / SJV / ŠPORT / Počasie — mild center zoom.
+- * Provisional (~15%); tune against wall framing in megarepo / demo-assets if needed.
++ * LED `bg_loop` during tema / SJV / ŠPORT / Počasie — 120% zoom, biased right.
++ * x=-0.2 pins the scaled frame to the right edge (+50% of the 20% overflow from left).
+  */
+ export const LED_BG_LOOP_TEMA_FILL = {
+-	x: -0.075,
+-	y: -0.075,
+-	xScale: 1.15,
+-	yScale: 1.15,
++	x: -0.2,
++	y: -0.1,
++	xScale: 1.2,
++	yScale: 1.2,
+ } as const
+ 
+ export type MixerFillRect = {
+@@ -147,5 +148,5 @@ export const PGM_DOUBLEBOX_CAMERA_CROP = coverCropForFill(PGM_DOUBLEBOX_CAMERA_F
+ /** Center cover-crop for DoubleBox left ILU window. */
+ export const PGM_DOUBLEBOX_ILU_CROP = coverCropForFill(PGM_DOUBLEBOX_ILU_FILL, 'center')
+ 
+-/** Cover-crop paired with {@link LED_BG_LOOP_TEMA_FILL}. */
+-export const LED_BG_LOOP_TEMA_CROP = coverCropForFill(LED_BG_LOOP_TEMA_FILL, 'center')
++/** Cover-crop paired with {@link LED_BG_LOOP_TEMA_FILL} (right-biased pan). */
++export const LED_BG_LOOP_TEMA_CROP = coverCropForFill(LED_BG_LOOP_TEMA_FILL, 'from-left')
+diff --git a/packages/docs/docs/pgm_route_contract.md b/packages/docs/docs/pgm_route_contract.md
+index b58ff5d..63f73e6 100644
+--- a/packages/docs/docs/pgm_route_contract.md
++++ b/packages/docs/docs/pgm_route_contract.md
+@@ -19,7 +19,7 @@ Canonical Take → Caspar routing for the four-channel studio (LED=1, PGM=2, Dou
+ | SYN avízo / last words | Full (4) | `route://4` | hard cut | |
+ | Outro | Full (4) | `route://4` | `outro.mov` on PGM | |
+ 
+-**LED:** baseline `loops/bg_loop` fullscreen; tema / SJV / ŠPORT / Počasie parts apply a mild zoom FILL+CROP. Tip / avízo / outro return to fullscreen.
++**LED:** baseline `loops/bg_loop` fullscreen; tema / SJV / ŠPORT / Počasie parts apply a 120% zoom FILL+CROP biased right (`FILL -0.2 -0.1 1.2 1.2`). Tip / avízo / outro return to fullscreen.
+ 
+ **Countup:** PGM layer 123 (above the route), not a look-compose layer.
+ 
+-- 
+2.43.0
+
