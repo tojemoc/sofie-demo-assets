@@ -268,7 +268,12 @@
         fitText(fields.title, 42, 24);
       }
 
-      function play() {
+      function play(rawData) {
+        // Apply payload before revealing — Caspar sometimes PLAY before UPDATE,
+        // and a recycled CEF instance still holds the previous headline.
+        if (rawData !== undefined && rawData !== null && rawData !== "") {
+          applyData(rawData);
+        }
         stageElement.classList.remove("is-stopping");
         stageElement.classList.remove("is-playing");
         void stageElement.offsetWidth;
@@ -278,6 +283,8 @@
       function stop() {
         stageElement.classList.remove("is-playing");
         stageElement.classList.add("is-stopping");
+        // Clear copy so the next Take cannot In-animate stale text.
+        applyData({});
       }
 
       function update(rawData) {
