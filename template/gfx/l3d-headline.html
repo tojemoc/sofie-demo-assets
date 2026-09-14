@@ -167,9 +167,9 @@
 <body>
   <main id="template" class="stage">
     <div class="panel headline-panel"></div>
-    <p id="headline" class="line headline">Test headline</p>
+    <p id="headline" class="line headline"></p>
     <div class="panel subline-panel"></div>
-    <p id="subline" class="line subline">Test subline</p>
+    <p id="subline" class="line subline"></p>
   </main>
 
   <script>
@@ -257,15 +257,38 @@
         const nextHeadline = [data.headline, data.Headline, data.title, data.Title].map(fieldValue).find((value) => value !== undefined);
         const nextSubline = [data.subline, data.Subline, data.subtitle, data.Subtitle].map(fieldValue).find((value) => value !== undefined);
 
-        if (nextHeadline !== undefined) fields.headline.textContent = nextHeadline;
-        if (fields.subline && nextSubline !== undefined) fields.subline.textContent = nextSubline;
+        fields.headline.textContent = nextHeadline !== undefined && nextHeadline !== null ? String(nextHeadline) : "";
+        if (fields.subline) fields.subline.textContent = nextSubline !== undefined && nextSubline !== null ? String(nextSubline) : "";
 
         fitLine(fields.headline, panels.headline, 86, 48);
         if (fields.subline) fitLine(fields.subline, panels.subline, 86, 48);
       }
 
+      let stopClearTimer = null;
+      let stopClearHandler = null;
+
+      function cancelPendingStopClear() {
+        if (stopClearTimer !== null) {
+          window.clearTimeout(stopClearTimer);
+          stopClearTimer = null;
+        }
+        if (stopClearHandler) {
+          templateElement.removeEventListener("animationend", stopClearHandler);
+          stopClearHandler = null;
+        }
+      }
+
+      function clearStaleCopy() {
+        applyData({});
+      }
+
       function play(rawData) {
-        if (rawData !== undefined) applyData(rawData);
+        cancelPendingStopClear();
+        // Apply payload before revealing — Caspar sometimes PLAY before UPDATE,
+        // and a recycled CEF instance still holds the previous headline.
+        if (rawData !== undefined && rawData !== null && rawData !== "") {
+          applyData(rawData);
+        }
         templateElement.classList.remove("is-stopping");
         templateElement.classList.remove("is-playing");
         void templateElement.offsetWidth;
@@ -274,8 +297,21 @@
       }
 
       function stop() {
+        cancelPendingStopClear();
         templateElement.classList.remove("is-playing");
         templateElement.classList.add("is-stopping");
+        // Clear copy after Out finishes so the fade is not an empty panel.
+        stopClearHandler = function onStopAnimationEnd(event) {
+          if (event.target !== templateElement) return;
+          if (event.animationName && event.animationName !== "template-out") return;
+          cancelPendingStopClear();
+          if (templateElement.classList.contains("is-stopping")) clearStaleCopy();
+        };
+        templateElement.addEventListener("animationend", stopClearHandler);
+        stopClearTimer = window.setTimeout(function () {
+          cancelPendingStopClear();
+          if (templateElement.classList.contains("is-stopping")) clearStaleCopy();
+        }, 280);
         return Promise.resolve();
       }
 

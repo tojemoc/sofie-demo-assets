@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=1920, height=1080, initial-scale=1">
-  <title>Spravy 360 - Sport</title>
+  <title>Spravy 360 - Odporucanie / Avizo</title>
   <style>
     :root {
       --stage-width: 1920px;
@@ -100,36 +100,6 @@
       pointer-events: none;
     }
 
-    .kicker-box {
-      position: absolute;
-      left: 80px;
-      top: 803px;
-      width: 170px;
-      height: 44px;
-      border-radius: 0 0 10px 10px;
-      background: rgba(255, 255, 255, .8);
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, .5);
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .kicker-dot {
-      position: absolute;
-      left: 100px;
-      top: 825px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .2), transparent 34%),
-        #2c7dff;
-      box-shadow: 0 0 8px rgba(44, 125, 255, .22);
-      transform: translateY(-50%);
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .kicker,
     .headline {
       position: absolute;
       margin: 0;
@@ -142,19 +112,6 @@
       -webkit-font-smoothing: antialiased;
       font-kerning: normal;
       font-feature-settings: "kern" 1;
-    }
-
-    .kicker {
-      left: 129px;
-      top: 808px;
-      width: 100px;
-      height: 34px;
-      color: #000;
-      font-family: "Diform", Arial, Helvetica, sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      line-height: 34px;
-      text-transform: uppercase;
     }
 
     .headline {
@@ -195,9 +152,6 @@
 <body>
   <main id="template" class="stage">
     <div class="panel"></div>
-    <div class="kicker-box"></div>
-    <div class="kicker-dot"></div>
-    <p id="kicker" class="kicker"></p>
     <p id="headline" class="headline"></p>
   </main>
 
@@ -205,7 +159,6 @@
     (() => {
       const templateElement = document.getElementById("template");
       const fields = {
-        kicker: document.getElementById("kicker"),
         headline: document.getElementById("headline")
       };
 
@@ -247,17 +200,10 @@
 
       function applyData(rawData) {
         const data = parseTemplateData(rawData);
-        // Prefer first defined key (incl. "") so stop can clear with empty string.
-        const nextKicker = [data.kicker, data.Kicker, data.rubrika, data.label, data.f0]
-          .find(function (value) { return value !== undefined && value !== null; });
-        const nextHeadline = [data.headline, data.Headline, data.title, data.titulok, data.f1]
-          .find(function (value) { return value !== undefined && value !== null; });
+        const nextHeadline = data.headline || data.Headline || data.title || data.titulok || data.f1;
 
-        // Absent kicker → documented default ŠPORT; explicit "" still clears (stop()).
-        fields.kicker.textContent = nextKicker !== undefined ? String(nextKicker) : "ŠPORT";
         fields.headline.textContent = nextHeadline !== undefined && nextHeadline !== null ? String(nextHeadline) : "";
 
-        fitText(fields.kicker, 28, 18);
         fitText(fields.headline, 86, 48);
       }
 
@@ -276,8 +222,7 @@
       }
 
       function clearStaleCopy() {
-        // Explicit empty strings — applyData({}) would re-apply default ŠPORT.
-        applyData({ kicker: "", headline: "" });
+        applyData({});
       }
 
       function play(rawData) {
