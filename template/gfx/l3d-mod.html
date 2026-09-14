@@ -180,7 +180,7 @@
 <body>
   <main id="template" class="stage">
     <div class="panel"></div>
-    <p id="headline" class="headline">Kamenický o konsolidácií Slovenska</p>
+    <p id="headline" class="headline"></p>
   </main>
 
 	  <script>
@@ -237,7 +237,7 @@
         const data = parseTemplateData(rawData);
         const nextHeadline = data.headline || data.Headline || data.title || data.titulok || data.name || data.f1;
 
-        if (nextHeadline !== undefined) fields.headline.textContent = nextHeadline;
+        fields.headline.textContent = nextHeadline !== undefined && nextHeadline !== null ? String(nextHeadline) : "";
 
         fitText(fields.headline, 86, 48);
       }
