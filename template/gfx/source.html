@@ -41,7 +41,8 @@
       position: relative;
       width: var(--stage-width);
       height: var(--stage-height);
-      opacity: 1;
+      /* Hidden until play() — otherwise CEF shows the settled graphic before In. */
+      opacity: 0;
       transform: translate3d(0, 0, 0);
     }
 

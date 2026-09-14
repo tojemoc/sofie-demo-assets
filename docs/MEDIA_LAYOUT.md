@@ -78,6 +78,7 @@ Blueprints blind-map a looping background video and overlay the HTML template:
 
 ```text
 assets/bg_pocasie.mov   ← map / loop under the city cards (Caspar PLAY `assets/bg_pocasie`)
+assets/pod_headline.png ← LED headlines pod underlay (Caspar PLAY `assets/pod_headline` on layer 112)
 ```
 
 Place the file at `sofie-demo-media/assets/bg_pocasie.mov` (or `.mp4`). The HTML
