@@ -207,7 +207,26 @@
         fitText(fields.headline, 86, 48);
       }
 
+      let stopClearTimer = null;
+      let stopClearHandler = null;
+
+      function cancelPendingStopClear() {
+        if (stopClearTimer !== null) {
+          window.clearTimeout(stopClearTimer);
+          stopClearTimer = null;
+        }
+        if (stopClearHandler) {
+          templateElement.removeEventListener("animationend", stopClearHandler);
+          stopClearHandler = null;
+        }
+      }
+
+      function clearStaleCopy() {
+        applyData({});
+      }
+
       function play(rawData) {
+        cancelPendingStopClear();
         // Apply payload before revealing — Caspar sometimes PLAY before UPDATE,
         // and a recycled CEF instance still holds the previous headline.
         if (rawData !== undefined && rawData !== null && rawData !== "") {
@@ -220,10 +239,21 @@
       }
 
       function stop() {
+        cancelPendingStopClear();
         templateElement.classList.remove("is-playing");
         templateElement.classList.add("is-stopping");
-        // Clear copy so the next Take cannot In-animate stale text.
-        applyData({});
+        // Clear copy after Out finishes so the fade is not an empty panel.
+        stopClearHandler = function onStopAnimationEnd(event) {
+          if (event.target !== templateElement) return;
+          if (event.animationName && event.animationName !== "template-out") return;
+          cancelPendingStopClear();
+          if (templateElement.classList.contains("is-stopping")) clearStaleCopy();
+        };
+        templateElement.addEventListener("animationend", stopClearHandler);
+        stopClearTimer = window.setTimeout(function () {
+          cancelPendingStopClear();
+          if (templateElement.classList.contains("is-stopping")) clearStaleCopy();
+        }, 280);
       }
 
       function update(rawData) {
