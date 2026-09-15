@@ -149,7 +149,7 @@
     .weather-card[data-region="TN"] { left: 710px; top: 450px; }
     .weather-card[data-region="NR"] { left: 880px; top: 720px; }
     .weather-card[data-region="ZA"] { left: 900px; top: 300px; }
-    .weather-card[data-region="MM"] { left: 1085px; top: 550px; }
+    .weather-card[data-region="BB"] { left: 1085px; top: 550px; }
     .weather-card[data-region="PO"] { left: 1480px; top: 380px; }
     .weather-card[data-region="KE"] { left: 1580px; top: 590px; }
   </style>
@@ -161,7 +161,7 @@
 
   <script>
     (() => {
-      const REGION_CODES = ["BA", "TT", "NR", "TN", "ZA", "MM", "KE", "PO"];
+      const REGION_CODES = ["BA", "TT", "NR", "TN", "ZA", "BB", "KE", "PO"];
       const DEFAULT_IMAGE = "../icons/sunny.svg";
       const DEFAULT_REGIONS = {
         BA: { name: "BRATISLAVA", temp: "4", delay: 200 },
@@ -169,7 +169,7 @@
         NR: { name: "NITRA", temp: "2", delay: 600 },
         TN: { name: "TRENČÍN", temp: "1", delay: 800 },
         ZA: { name: "ŽILINA", temp: "-1", delay: 1000 },
-        MM: { name: "B. BYSTRICA", temp: "0", delay: 1200 },
+        BB: { name: "B. BYSTRICA", temp: "0", delay: 1200 },
         KE: { name: "KOŠICE", temp: "2", delay: 1400 },
         PO: { name: "PREŠOV", temp: "1", delay: 1600 }
       };
@@ -288,8 +288,8 @@
         REGION_CODES.forEach((region) => {
           const defaults = DEFAULT_REGIONS[region];
           const card = cards[region];
-          // Accept legacy BB_* aliases for the MM (Banská Bystrica) card.
-          const legacyRegion = region === "MM" ? "BB" : null;
+          // Accept mistaken MM_* aliases for the BB (Banská Bystrica) card.
+          const legacyRegion = region === "BB" ? "MM" : null;
           const imgKeys = [region + "_img", region + "_image"];
           const tempKeys = [region + "_temp", region + "_temperature"];
           const nameKeys = [region + "_name", region + "_region"];
