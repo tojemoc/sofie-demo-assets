@@ -288,10 +288,22 @@
         REGION_CODES.forEach((region) => {
           const defaults = DEFAULT_REGIONS[region];
           const card = cards[region];
-          const nextImage = firstDefined(data, [region + "_img", region + "_image"]);
-          const nextTemp = firstDefined(data, [region + "_temp", region + "_temperature"]);
-          const nextName = firstDefined(data, [region + "_name", region + "_region"]);
-          const nextDelay = firstDefined(data, [region + "_delay", region + "_time", region + "_start"]);
+          // Accept mistaken MM_* aliases for the BB (Banská Bystrica) card.
+          const legacyRegion = region === "BB" ? "MM" : null;
+          const imgKeys = [region + "_img", region + "_image"];
+          const tempKeys = [region + "_temp", region + "_temperature"];
+          const nameKeys = [region + "_name", region + "_region"];
+          const delayKeys = [region + "_delay", region + "_time", region + "_start"];
+          if (legacyRegion) {
+            imgKeys.push(legacyRegion + "_img", legacyRegion + "_image");
+            tempKeys.push(legacyRegion + "_temp", legacyRegion + "_temperature");
+            nameKeys.push(legacyRegion + "_name", legacyRegion + "_region");
+            delayKeys.push(legacyRegion + "_delay", legacyRegion + "_time", legacyRegion + "_start");
+          }
+          const nextImage = firstDefined(data, imgKeys);
+          const nextTemp = firstDefined(data, tempKeys);
+          const nextName = firstDefined(data, nameKeys);
+          const nextDelay = firstDefined(data, delayKeys);
 
           card.image.src = imageSource(nextImage);
           card.image.alt = (nextName || defaults.name) + " pocasie";
